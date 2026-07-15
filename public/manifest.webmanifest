@@ -1,0 +1,20 @@
+{
+  "name": "Italy Family Trip 2026 – Story Line",
+  "short_name": "Italy Story",
+  "description": "המסלול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5efe5",
+  "theme_color": "#0b4d57",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
