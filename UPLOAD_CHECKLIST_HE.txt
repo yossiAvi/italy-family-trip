@@ -1,0 +1,14 @@
+בדיקת העלאה ל-GitHub
+====================
+בשורש המאגר חייבים להופיע יחד:
+- index.html
+- package.json
+- netlify.toml
+- src (תיקייה)
+- public (תיקייה)
+
+בתוך src חייב להופיע main.jsx.
+כתובת הבדיקה ב-GitHub צריכה להיות:
+https://github.com/<user>/<repo>/blob/main/src/main.jsx
+
+אם src לא מופיעה בשורש, Netlify לא יוכל לבנות את האתר.
