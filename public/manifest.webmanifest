@@ -1,7 +1,7 @@
 {
-  "name": "Italy Family Trip 2026 – Story Line",
-  "short_name": "Italy Story",
-  "description": "המסלול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי",
+  "name": "הטיול של משפחת אביטן – Story Line",
+  "short_name": "משפחת אביטן",
+  "description": "הטיול של משפחת אביטן – מסלול, יומן משפחתי, תמונות, טיפים וניווט",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

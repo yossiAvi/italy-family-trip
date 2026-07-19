@@ -31,7 +31,7 @@ export default function App(){
   return <>
     <div id="home" data-nav-section><Hero onStart={()=>go('itinerary')}/></div>
     <nav className="topNav"><div className="container navInner">
-      <a className="brand" href="#home"><span>🇮🇹</span><b>ITALY 2026</b></a>
+      <a className="brand" href="#home"><span>🇮🇹</span><b>משפחת אביטן</b></a>
       <div>{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}>{label}</button>)}</div>
     </div></nav>
     <main>
@@ -41,7 +41,7 @@ export default function App(){
       <DestinationGallery destinations={destinations}/>
       <div id="itinerary" data-nav-section><DayPlanner days={days} restaurants={restaurants} shopping={shopping}/></div>
       <RouteMap destinations={destinations}/>
-      <div id="story" data-nav-section><Storyline days={days}/></div>
+      <div id="story" data-nav-section><Storyline days={days} destinations={destinations}/></div>
       <div id="food" data-nav-section><FoodExplorer restaurants={restaurants}/></div>
       <div id="shopping" data-nav-section><ShoppingGuide shopping={shopping}/></div>
       <div id="tools" data-nav-section><TripTools/></div>
@@ -51,6 +51,6 @@ export default function App(){
     </main>
     {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
     <nav className="bottomNav">{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='story'?'✦':id==='food'?'◉':id==='shopping'?'◇':'✓'}</span>{label}</button>)}</nav>
-    <footer><div className="container"><div><b>Italy Family Trip 2026</b><p>המסלול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
+    <footer><div className="container"><div><b>הטיול של משפחת אביטן</b><p>הטיול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
   </>
 }

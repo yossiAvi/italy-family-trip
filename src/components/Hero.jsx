@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { imageBank } from '../data/tripData.js';
 
 const slides = [
+  {image:'/avitan-family-hero.jpg', label:'משפחת אביטן', position:'center center'},
   {image:imageBank.rome, label:'רומא'},
   {image:imageBank.positano, label:'פוזיטנו'},
   {image:imageBank.amalfi, label:'חוף אמאלפי'},
@@ -24,14 +25,14 @@ export default function Hero({onStart}) {
   },[]);
   return <header className="hero">
     <div className="heroMedia">
-      {slides.map((s,i)=><div key={s.label} className={`heroSlide ${i===index?'active':''}`} style={{backgroundImage:`url(${s.image})`}} />)}
+      {slides.map((s,i)=><div key={s.label} className={`heroSlide ${i===index?'active':''}`} style={{backgroundImage:`url(${s.image})`, backgroundPosition:s.position || 'center center'}} />)}
       <div className="heroShade" />
     </div>
     <div className="container heroContent">
       <div className="heroCopy">
         <span className="pill light">🇮🇹 קיץ 2026 · משפחה של 5</span>
-        <h1>המסע המשפחתי<br/><em>שלנו לאיטליה</em></h1>
-        <p>רומא, סורנטו, פוזיטנו, אמאלפי, רוולו, קפרי, פומפיי ונאפולי — עם מסלול מדויק, אוכל, כשרות, קניות וניווט.</p>
+        <h1>הטיול של<br/><em>משפחת אביטן</em></h1>
+        <p>רומא, סורנטו, פוזיטנו, אמאלפי, רוולו, קפרי, פומפיי ונאפולי — עם מסלול מדויק, אוכל, כשרות, קניות, יומן משפחתי וניווט.</p>
         <div className="heroButtons">
           <button className="button primary" onClick={onStart}>פתחו את המסלול</button>
           <button className="button glass" onClick={()=>navigator.share?.({title:document.title,url:location.href})}>שיתוף למשפחה</button>

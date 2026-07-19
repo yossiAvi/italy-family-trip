@@ -186,13 +186,51 @@ export async function createStory(input, imageFiles = []) {
   return { ...normalizeCloud(data), mine: true };
 }
 
-export async function updateStory(story, changes) {
+/**
+ * mediaItems keeps the exact final gallery order.
+ * Existing item: { kind:'existing', src, path }
+ * New item:      { kind:'new', file }
+ */
+export async function updateStory(story, changes, mediaItems = null) {
   const updatedAt = new Date().toISOString();
+
   if (!cloudConfigured) {
-    const next = { ...story, ...changes, updatedAt };
+    let images = story.images || [];
+    if (mediaItems) {
+      images = [];
+      for (const item of mediaItems) {
+        images.push(item.kind === 'new' ? await blobToDataUrl(item.file) : item.src);
+      }
+    }
+    const next = { ...story, ...changes, images, imagePaths: [], updatedAt };
     await localPut(next);
     return next;
   }
+
+  const user = await ensureCloudSession(changes.author || story.author);
+  const finalImages = [];
+  const finalPaths = [];
+  const newlyUploadedPaths = [];
+
+  if (mediaItems) {
+    try {
+      for (const item of mediaItems) {
+        if (item.kind === 'existing') {
+          finalImages.push(item.src);
+          finalPaths.push(item.path || null);
+        } else {
+          const uploaded = await uploadCloudImages([item.file], user.id, story.id);
+          finalImages.push(uploaded.images[0]);
+          finalPaths.push(uploaded.imagePaths[0]);
+          newlyUploadedPaths.push(uploaded.imagePaths[0]);
+        }
+      }
+    } catch (error) {
+      if (newlyUploadedPaths.length) await supabase.storage.from(BUCKET).remove(newlyUploadedPaths);
+      throw error;
+    }
+  }
+
   const payload = {
     author: changes.author,
     title: changes.title,
@@ -205,14 +243,34 @@ export async function updateStory(story, changes) {
     visit_date: changes.visitDate,
     updated_at: updatedAt
   };
+
+  if (mediaItems) {
+    payload.images = finalImages;
+    payload.image_paths = finalPaths.map(path => path || '');
+  }
+
   const { data, error } = await supabase.from('trip_stories').update(payload).eq('id', story.id).select().single();
-  if (error) throw error;
+  if (error) {
+    if (newlyUploadedPaths.length) await supabase.storage.from(BUCKET).remove(newlyUploadedPaths);
+    throw error;
+  }
+
+  if (mediaItems) {
+    const keptPaths = new Set(finalPaths.filter(Boolean));
+    const removedPaths = (story.imagePaths || []).filter(Boolean).filter(path => !keptPaths.has(path));
+    if (removedPaths.length) {
+      const { error: removeError } = await supabase.storage.from(BUCKET).remove(removedPaths);
+      if (removeError) console.warn('Story images updated, but old image cleanup failed:', removeError.message);
+    }
+  }
+
   return { ...normalizeCloud(data), mine: true };
 }
 
 export async function deleteStory(story) {
   if (!cloudConfigured) return localDelete(story.id);
-  if (story.imagePaths?.length) await supabase.storage.from(BUCKET).remove(story.imagePaths);
+  const paths = (story.imagePaths || []).filter(Boolean);
+  if (paths.length) await supabase.storage.from(BUCKET).remove(paths);
   const { error } = await supabase.from('trip_stories').delete().eq('id', story.id);
   if (error) throw error;
 }
@@ -233,7 +291,7 @@ export async function importLocalStories(stories) {
 }
 
 export function exportStories(stories) {
-  const blob = new Blob([JSON.stringify({ version: 1, tripId: TRIP_ID, exportedAt: new Date().toISOString(), stories }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ version: 2, tripId: TRIP_ID, exportedAt: new Date().toISOString(), stories }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
