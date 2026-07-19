@@ -15,13 +15,17 @@ const nav=[
 
 export default function App(){
   const [active,setActive]=useState('home');
+  const [showTop,setShowTop]=useState(false);
   useEffect(()=>{
+    const onScroll=()=>setShowTop(window.scrollY>900);
+    window.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
     const observer=new IntersectionObserver(entries=>{
       const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
       if(visible?.target?.id)setActive(visible.target.id);
     },{threshold:[.25,.5,.75]});
     document.querySelectorAll('[data-nav-section]').forEach(el=>observer.observe(el));
-    return ()=>observer.disconnect();
+    return ()=>{observer.disconnect();window.removeEventListener('scroll',onScroll)};
   },[]);
   const go=id=>document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
   return <>
@@ -45,6 +49,7 @@ export default function App(){
         <div className="finalCallout"><div><span className="eyebrow">כלל הזהב</span><h2>בחוף אמאלפי — הים הוא הכביש שלכם</h2><p>פוזיטנו, אמאלפי, מינורי ומאיורי במעבורות. לפומפיי נוסעים ברכב וחונים ליד האתר; לנאפולי ממשיכים ברכבת. כך חוסכים שעות של פקקים, לחץ וחניה.</p></div><button className="button primary" onClick={()=>window.print()}>שמירה כ־PDF</button></div>
       </section>
     </main>
+    {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
     <nav className="bottomNav">{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='story'?'✦':id==='food'?'◉':id==='shopping'?'◇':'✓'}</span>{label}</button>)}</nav>
     <footer><div className="container"><div><b>Italy Family Trip 2026</b><p>המסלול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
   </>
