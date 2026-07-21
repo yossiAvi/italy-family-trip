@@ -1,26 +1,12 @@
-<!doctype html>
-<html lang="he" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b4d57" />
-    <meta name="description" content="הטיול של משפחת אביטן – מסלול, יומן משפחתי, תמונות, טיפים וניווט" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="הטיול של משפחת אביטן" />
-    <meta property="og:description" content="הטיול של משפחת אביטן – מסלול, יומן משפחתי, תמונות, טיפים וניווט" />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:locale" content="he_IL" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="הטיול של משפחת אביטן" />
-    <meta name="twitter:description" content="הטיול של משפחת אביטן – מסלול, יומן משפחתי, תמונות, טיפים וניווט" />
-    <meta name="twitter:image" content="/og-image.png" />
-    <title>הטיול של משפחת אביטן</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './styles.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode><App /></React.StrictMode>
+);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
