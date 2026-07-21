@@ -7,10 +7,11 @@ import ShoppingGuide from './components/ShoppingGuide.jsx';
 import RouteMap from './components/RouteMap.jsx';
 import TripTools from './components/TripTools.jsx';
 import Storyline from './components/Storyline.jsx';
+import PremiumExperience from './components/PremiumExperience.jsx';
 import { days, destinations, restaurants, shopping } from './data/tripData.js';
 
 const nav=[
-  ['home','בית'],['itinerary','מסלול'],['story','יומן'],['food','אוכל'],['shopping','שופינג'],['tools','כלים']
+  ['home','בית'],['experience','עכשיו'],['itinerary','מסלול'],['story','יומן'],['food','אוכל'],['tools','כלים']
 ];
 
 export default function App(){
@@ -39,6 +40,7 @@ export default function App(){
         <div><span>11</span><small>ימים</small></div><div><span>5</span><small>מטיילים</small></div><div><span>7</span><small>יעדים מרכזיים</small></div><div><span>2</span><small>בסיסי לינה</small></div>
       </div></section>
       <DestinationGallery destinations={destinations}/>
+      <div id="experience" data-nav-section><PremiumExperience days={days} destinations={destinations} onOpenDay={date=>{go('itinerary');setTimeout(()=>dispatchEvent(new CustomEvent('open-trip-day',{detail:date})),500)}} onAddStory={()=>{go('story');setTimeout(()=>dispatchEvent(new Event('open-story-composer')),500)}}/></div>
       <div id="itinerary" data-nav-section><DayPlanner days={days} restaurants={restaurants} shopping={shopping}/></div>
       <RouteMap destinations={destinations}/>
       <div id="story" data-nav-section><Storyline days={days} destinations={destinations}/></div>
@@ -50,7 +52,7 @@ export default function App(){
       </section>
     </main>
     {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
-    <nav className="bottomNav">{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='story'?'✦':id==='food'?'◉':id==='shopping'?'◇':'✓'}</span>{label}</button>)}</nav>
+    <nav className="bottomNav">{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':id==='story'?'✦':id==='food'?'◉':'✓'}</span>{label}</button>)}</nav>
     <footer><div className="container"><div><b>הטיול של משפחת אביטן</b><p>הטיול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
   </>
 }

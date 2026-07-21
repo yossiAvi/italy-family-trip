@@ -375,15 +375,17 @@ export default function Storyline({ days, destinations = [] }) {
 
   const refresh = async () => {
     setLoading(true); setError('');
-    try { setStories(await loadStories(localStorage.getItem('storyAuthor') || '')); }
+    try { const loaded=await loadStories(localStorage.getItem('storyAuthor') || ''); setStories(loaded); localStorage.setItem('tripStoriesCache',JSON.stringify(loaded)); dispatchEvent(new CustomEvent('trip-stories-updated',{detail:loaded})); }
     catch (e) { setError(`שגיאת סנכרון: ${e.message}`); }
     finally { setLoading(false); }
   };
 
   useEffect(() => {
     refresh();
+    const quickAdd=()=>{setEditing(null);setShowComposer(true);setTimeout(()=>document.querySelector('.storyComposer')?.scrollIntoView({behavior:'smooth',block:'start'}),80)};
+    addEventListener('open-story-composer',quickAdd);
     const unsubscribe = subscribeStories(() => refresh());
-    return unsubscribe;
+    return ()=>{unsubscribe?.();removeEventListener('open-story-composer',quickAdd)};
   }, []);
 
   const visible = useMemo(() => {

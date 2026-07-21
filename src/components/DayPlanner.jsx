@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 function StopCard({stop,index}){
   return <article className="stopCard detailedStop">
@@ -45,6 +45,11 @@ function TransportPanel({day}){
 export default function DayPlanner({days,restaurants,shopping}){
   const [open,setOpen]=useState(0);
   const [query,setQuery]=useState('');
+  useEffect(()=>{
+    const openDay=e=>{const index=days.findIndex(d=>d.date===e.detail);if(index>=0){setQuery('');setOpen(index);setTimeout(()=>document.querySelectorAll('.dayCard')[index]?.scrollIntoView({behavior:'smooth',block:'start'}),80)}};
+    addEventListener('open-trip-day',openDay);
+    return()=>removeEventListener('open-trip-day',openDay);
+  },[days]);
   const visible=useMemo(()=>{
     const q=query.trim();
     if(!q) return days;
