@@ -1,58 +1,37 @@
-import { useEffect, useState } from 'react';
-import Hero from './components/Hero.jsx';
-import DestinationGallery from './components/DestinationGallery.jsx';
-import DayPlanner from './components/DayPlanner.jsx';
-import FoodExplorer from './components/FoodExplorer.jsx';
-import ShoppingGuide from './components/ShoppingGuide.jsx';
-import RouteMap from './components/RouteMap.jsx';
-import TripTools from './components/TripTools.jsx';
-import Storyline from './components/Storyline.jsx';
-import PremiumExperience from './components/PremiumExperience.jsx';
-import { days, destinations, restaurants, shopping } from './data/tripData.js';
+[build]
+  base = "."
+  command = "npm run build"
+  publish = "dist"
 
-const nav=[
-  ['home','בית'],['experience','עכשיו'],['itinerary','מסלול'],['story','יומן'],['food','אוכל'],['tools','כלים']
-];
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+  NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
+  NPM_CONFIG_FETCH_RETRIES = "5"
+  NPM_CONFIG_FETCH_RETRY_FACTOR = "2"
+  NPM_CONFIG_FETCH_RETRY_MINTIMEOUT = "20000"
+  NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT = "120000"
 
-export default function App(){
-  const [active,setActive]=useState('home');
-  const [showTop,setShowTop]=useState(false);
-  useEffect(()=>{
-    const onScroll=()=>setShowTop(window.scrollY>900);
-    window.addEventListener('scroll',onScroll,{passive:true});
-    onScroll();
-    const observer=new IntersectionObserver(entries=>{
-      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-      if(visible?.target?.id)setActive(visible.target.id);
-    },{threshold:[.25,.5,.75]});
-    document.querySelectorAll('[data-nav-section]').forEach(el=>observer.observe(el));
-    return ()=>{observer.disconnect();window.removeEventListener('scroll',onScroll)};
-  },[]);
-  const go=id=>document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
-  return <>
-    <div id="home" data-nav-section><Hero onStart={()=>go('itinerary')}/></div>
-    <nav className="topNav"><div className="container navInner">
-      <a className="brand" href="#home"><span>🇮🇹</span><b>משפחת אביטן</b></a>
-      <div>{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}>{label}</button>)}</div>
-    </div></nav>
-    <main>
-      <section className="introBand"><div className="container introGrid">
-        <div><span>11</span><small>ימים</small></div><div><span>5</span><small>מטיילים</small></div><div><span>7</span><small>יעדים מרכזיים</small></div><div><span>2</span><small>בסיסי לינה</small></div>
-      </div></section>
-      <DestinationGallery destinations={destinations}/>
-      <div id="experience" data-nav-section><PremiumExperience days={days} destinations={destinations} onOpenDay={date=>{go('itinerary');setTimeout(()=>dispatchEvent(new CustomEvent('open-trip-day',{detail:date})),500)}} onAddStory={()=>{go('story');setTimeout(()=>dispatchEvent(new Event('open-story-composer')),500)}}/></div>
-      <div id="itinerary" data-nav-section><DayPlanner days={days} restaurants={restaurants} shopping={shopping}/></div>
-      <RouteMap destinations={destinations}/>
-      <div id="story" data-nav-section><Storyline days={days} destinations={destinations}/></div>
-      <div id="food" data-nav-section><FoodExplorer restaurants={restaurants}/></div>
-      <div id="shopping" data-nav-section><ShoppingGuide shopping={shopping}/></div>
-      <div id="tools" data-nav-section><TripTools/></div>
-      <section className="section container">
-        <div className="finalCallout"><div><span className="eyebrow">כלל הזהב</span><h2>בחוף אמאלפי — הים הוא הכביש שלכם</h2><p>פוזיטנו, אמאלפי, מינורי ומאיורי במעבורות. לפומפיי נוסעים ברכב וחונים ליד האתר; לנאפולי ממשיכים ברכבת. כך חוסכים שעות של פקקים, לחץ וחניה.</p></div><button className="button primary" onClick={()=>window.print()}>שמירה כ־PDF</button></div>
-      </section>
-    </main>
-    {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
-    <nav className="bottomNav">{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':id==='story'?'✦':id==='food'?'◉':'✓'}</span>{label}</button>)}</nav>
-    <footer><div className="container"><div><b>הטיול של משפחת אביטן</b><p>הטיול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
-  </>
-}
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  port = 8888
+  autoLaunch = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), microphone=(self), geolocation=(self)"
