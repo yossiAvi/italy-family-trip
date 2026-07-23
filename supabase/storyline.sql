@@ -118,3 +118,35 @@ drop policy if exists "public reads shared trip files" on storage.objects;
 create policy "public reads shared trip files" on storage.objects for select to public using (bucket_id='trip-shared-files');
 drop policy if exists "family uploads shared trip files" on storage.objects;
 create policy "family uploads shared trip files" on storage.objects for insert to authenticated with check (bucket_id='trip-shared-files');
+
+-- Optional live family location sharing. Stores only the latest point; no route history.
+create table if not exists public.family_live_locations (
+  trip_id text not null,
+  member_id text not null,
+  member_name text not null,
+  avatar text default '📍',
+  latitude double precision not null,
+  longitude double precision not null,
+  accuracy double precision,
+  sharing boolean not null default true,
+  updated_by uuid references auth.users(id) on delete set null,
+  updated_at timestamptz not null default now(),
+  primary key (trip_id, member_id)
+);
+
+create index if not exists family_live_locations_trip_updated_idx
+  on public.family_live_locations (trip_id, updated_at desc);
+
+alter table public.family_live_locations enable row level security;
+drop policy if exists "family reads live locations" on public.family_live_locations;
+create policy "family reads live locations" on public.family_live_locations for select to authenticated using (true);
+drop policy if exists "family creates live locations" on public.family_live_locations;
+create policy "family creates live locations" on public.family_live_locations for insert to authenticated with check (auth.uid() = updated_by);
+drop policy if exists "family updates live locations" on public.family_live_locations;
+create policy "family updates live locations" on public.family_live_locations for update to authenticated using (true) with check (auth.uid() = updated_by);
+drop policy if exists "family deletes live locations" on public.family_live_locations;
+create policy "family deletes live locations" on public.family_live_locations for delete to authenticated using (true);
+
+do $$ begin
+  alter publication supabase_realtime add table public.family_live_locations;
+exception when duplicate_object then null; end $$;

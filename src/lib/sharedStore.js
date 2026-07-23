@@ -75,3 +75,48 @@ export async function importAllSharedData(shared={}) {
   const {error}=await client.from('trip_shared_data').upsert(rows,{onConflict:'trip_id,data_key'});
   if(error)throw error;
 }
+
+export async function listLiveLocations() {
+  if (!client) return [];
+  await ensureSession();
+  const { data, error } = await client.from('family_live_locations')
+    .select('*').eq('trip_id', TRIP_ID).order('member_name');
+  if (error) throw error;
+  return data || [];
+}
+
+export async function upsertLiveLocation(location) {
+  if (!client) return;
+  const user = await ensureSession();
+  const { error } = await client.from('family_live_locations').upsert({
+    trip_id: TRIP_ID,
+    member_id: location.memberId,
+    member_name: location.memberName,
+    avatar: location.avatar || '📍',
+    latitude: location.latitude,
+    longitude: location.longitude,
+    accuracy: location.accuracy || null,
+    sharing: true,
+    updated_by: user.id,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'trip_id,member_id' });
+  if (error) throw error;
+}
+
+export async function stopLiveLocation(memberId, remove=false) {
+  if (!client) return;
+  await ensureSession();
+  const query = client.from('family_live_locations');
+  const result = remove
+    ? await query.delete().eq('trip_id', TRIP_ID).eq('member_id', memberId)
+    : await query.update({ sharing:false, updated_at:new Date().toISOString() }).eq('trip_id',TRIP_ID).eq('member_id',memberId);
+  if (result.error) throw result.error;
+}
+
+export function subscribeLiveLocations(onChange) {
+  if (!client) return () => {};
+  const channel = client.channel(`live-locations-${TRIP_ID}`)
+    .on('postgres_changes', { event:'*', schema:'public', table:'family_live_locations', filter:`trip_id=eq.${TRIP_ID}` }, () => onChange())
+    .subscribe();
+  return () => client.removeChannel(channel);
+}

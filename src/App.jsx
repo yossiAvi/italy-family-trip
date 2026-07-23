@@ -10,12 +10,15 @@ import Storyline from './components/Storyline.jsx';
 import PremiumExperience from './components/PremiumExperience.jsx';
 import LodgingHub from './components/LodgingHub.jsx';
 import TranslatorHub from './components/TranslatorHub.jsx';
+import LiveLocationHub from './components/LiveLocationHub.jsx';
+import LiveCamsHub from './components/LiveCamsHub.jsx';
+import NearbyHub from './components/NearbyHub.jsx';
 import { days, destinations, restaurants, shopping } from './data/tripData.js';
 
 const nav=[
-  ['home','בית'],['experience','עכשיו'],['itinerary','מסלול'],['story','יומן'],['stays','לינות'],['translator','תרגום'],['tools','כלים']
+  ['home','בית'],['experience','עכשיו'],['itinerary','מסלול'],['story','יומן'],['locations','איפה כולם'],['nearby','סביבנו'],['livecams','מצלמות'],['stays','לינות'],['translator','תרגום'],['tools','כלים']
 ];
-const mobileNav=nav.filter(([id])=>['home','experience','itinerary','story','translator','tools'].includes(id));
+const mobileNav=nav.filter(([id])=>['home','experience','itinerary','story','nearby','locations'].includes(id));
 
 export default function App(){
   const [active,setActive]=useState('home');
@@ -47,6 +50,9 @@ export default function App(){
       <div id="itinerary" data-nav-section><DayPlanner days={days} restaurants={restaurants} shopping={shopping}/></div>
       <RouteMap destinations={destinations}/>
       <div id="story" data-nav-section><Storyline days={days} destinations={destinations}/></div>
+      <LiveLocationHub/>
+      <NearbyHub/>
+      <LiveCamsHub/>
       <div id="food" data-nav-section><FoodExplorer restaurants={restaurants}/></div>
       <div id="shopping" data-nav-section><ShoppingGuide shopping={shopping}/></div>
       <LodgingHub/>
@@ -57,7 +63,7 @@ export default function App(){
       </section>
     </main>
     {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
-    <nav className="bottomNav">{mobileNav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':id==='story'?'✦':id==='stays'?'⌂':id==='translator'?'文':id==='food'?'◉':'✓'}</span>{label}</button>)}</nav>
+    <nav className="bottomNav">{mobileNav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':id==='story'?'✦':id==='locations'?'◎':id==='nearby'?'✺':id==='stays'?'⌂':id==='translator'?'文':id==='food'?'◉':'✓'}</span>{label}</button>)}</nav>
     <footer><div className="container"><div><b>הטיול של משפחת אביטן</b><p>הטיול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
   </>
 }
