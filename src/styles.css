@@ -214,3 +214,83 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   .currencyResult{min-height:74px;display:flex;flex-direction:column;justify-content:center}
   .currencyCard header{gap:8px;flex-wrap:wrap}
 }
+
+
+/* v2.1.2 – mobile currency converter hard isolation */
+.currencyCard{
+  --currency-text:#173b42;
+  --currency-muted:#557077;
+  --currency-border:#bdd7d2;
+  --text-strong:#173b42;
+  --text-soft:#557077;
+  color:#173b42!important;
+  -webkit-text-fill-color:#173b42;
+  isolation:isolate;
+}
+.currencyCard *{text-shadow:none}
+.currencyCard h3,
+.currencyCard header b,
+.currencyCard header span,
+.currencyCard label,
+.currencyCard label span,
+.currencyCard .currencyResult,
+.currencyCard .currencyResult strong{
+  color:#173b42!important;
+  -webkit-text-fill-color:#173b42!important;
+  opacity:1!important;
+}
+.currencyCard small,
+.currencyCard header small,
+.currencyCard .currencyResult small,
+.currencyCard .currencyDisclaimer{
+  color:#557077!important;
+  -webkit-text-fill-color:#557077!important;
+  opacity:1!important;
+}
+.currencyCard input,
+.currencyCard input[type="number"]{
+  background-color:#fff!important;
+  color:#173b42!important;
+  -webkit-text-fill-color:#173b42!important;
+  caret-color:#173b42!important;
+  border-color:#bdd7d2!important;
+  opacity:1!important;
+  color-scheme:light;
+}
+.currencyCard input:focus{
+  background-color:#fff!important;
+  color:#173b42!important;
+  -webkit-text-fill-color:#173b42!important;
+}
+.currencyCard .currencyResult{
+  background:#fff!important;
+  border-color:#cfe1de!important;
+}
+.currencyCard .softButton{
+  background:#fff!important;
+  color:#173b42!important;
+  -webkit-text-fill-color:#173b42!important;
+  border:1px solid #cfe1de!important;
+}
+@media(max-width:650px){
+  .currencyCard,
+  .budgetLayout .currencyCard{
+    --text-strong:#173b42!important;
+    --text-soft:#557077!important;
+    color:#173b42!important;
+    -webkit-text-fill-color:#173b42!important;
+    background:linear-gradient(145deg,#fff,#eefbf8)!important;
+  }
+  .budgetLayout .currencyCard h3,
+  .budgetLayout .currencyCard label span,
+  .budgetLayout .currencyCard .currencyResult strong,
+  .budgetLayout .currencyCard input{
+    color:#173b42!important;
+    -webkit-text-fill-color:#173b42!important;
+  }
+  .budgetLayout .currencyCard small,
+  .budgetLayout .currencyCard .currencyDisclaimer{
+    color:#557077!important;
+    -webkit-text-fill-color:#557077!important;
+  }
+}
