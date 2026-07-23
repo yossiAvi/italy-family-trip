@@ -294,3 +294,11 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
     -webkit-text-fill-color:#557077!important;
   }
 }
+
+/* v2.1.3 delayed notes sync */
+.notesSaveBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;min-height:44px}
+.notesSaveBar span{font-size:.82rem;font-weight:800;color:#557074}
+.notesSaveBar span.pending{color:#9b6413}
+.notesSaveButton{background:var(--deep);color:#fff;padding:10px 16px}
+.notesSaveButton:disabled{opacity:.48;cursor:not-allowed}
+@media(max-width:650px){.notesSaveBar{align-items:stretch;flex-direction:column}.notesSaveButton{width:100%}}

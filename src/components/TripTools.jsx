@@ -149,13 +149,32 @@ const contactFields=[
 function NotesAndBackup(){
   const [notes,setNotes,notesSync]=useSharedTripData('quick-notes','',()=>localStorage.getItem('tripQuickNotes')||'');
   const [contacts,setContacts,contactsSync]=useSharedTripData('trip-contacts',()=>Object.fromEntries(contactFields.map(([id])=>[id,''])),()=>Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])));
-  const fileRef=useRef(null);
-  const updateNotes=value=>setNotes(value);
+  const [draftNotes,setDraftNotes]=useState(notes);
+  const [notesDirty,setNotesDirty]=useState(false);
+  const [notesMessage,setNotesMessage]=useState('');
+  const fileRef=useRef(null), notesTimer=useRef(null);
+  useEffect(()=>{if(!notesDirty)setDraftNotes(notes)},[notes,notesDirty]);
+  useEffect(()=>()=>clearTimeout(notesTimer.current),[]);
+  const saveNotes=()=>{
+    clearTimeout(notesTimer.current);
+    if(draftNotes===notes){setNotesDirty(false);setNotesMessage('הפתק מעודכן');return;}
+    setNotes(draftNotes);setNotesDirty(false);setNotesMessage('נשמר ומסתנכרן…');
+    setTimeout(()=>setNotesMessage(''),2200);
+  };
+  const updateNotes=value=>{
+    setDraftNotes(value);setNotesDirty(true);setNotesMessage('ממתין להפסקת כתיבה…');
+    clearTimeout(notesTimer.current);
+    notesTimer.current=setTimeout(()=>{
+      setNotes(value);setNotesDirty(false);setNotesMessage('נשמר אוטומטית');
+      setTimeout(()=>setNotesMessage(''),2200);
+    },3000);
+  };
   const updateContact=(id,value)=>setContacts(old=>({...old,[id]:value}));
-  const exportData=async()=>{try{const data=await exportAllSharedData()||{version:2,exportedAt:new Date().toISOString(),shared:{'quick-notes':notes,'trip-contacts':contacts}};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='italy-trip-shared-backup.json';a.click();URL.revokeObjectURL(url)}catch{alert('לא הצלחנו ליצור גיבוי כרגע')}};
+  const exportData=async()=>{try{if(notesDirty){clearTimeout(notesTimer.current);setNotes(draftNotes)}const data=await exportAllSharedData()||{version:2,exportedAt:new Date().toISOString(),shared:{'quick-notes':draftNotes,'trip-contacts':contacts}};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='italy-trip-shared-backup.json';a.click();URL.revokeObjectURL(url)}catch{alert('לא הצלחנו ליצור גיבוי כרגע')}};
   const importData=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());await importAllSharedData(data.shared||{});location.reload()}catch{alert('קובץ הגיבוי אינו תקין')}finally{e.target.value=''}};
-  return <div className="notesLayout"><div className={`sharedDataBadge wideSync ${notesSync==='synced'&&contactsSync==='synced'?'synced':'saving'}`}>{notesSync==='synced'&&contactsSync==='synced'?'☁️ הפתקים ופרטי הקשר משותפים לכולם':'↻ מסנכרן מידע…'}</div>
-    <div className="notesCard"><h3>פתקים משפחתיים</h3><p>רשמו כאן דברים שחשוב לזכור. הפתק נשמר אוטומטית ומסתנכרן לכל בני המשפחה.</p><textarea rows="10" value={notes} onChange={e=>updateNotes(e.target.value)} placeholder="מספרי הזמנה, דברים לקנות, שינויי תוכנית..."/></div>
+  const notesStatus=notesDirty?'יש שינויים שטרם נשמרו':notesSync==='saving'?'מסנכרן לענן…':notesSync==='error'?'השמירה בענן נכשלה':'הפתק מסונכרן';
+  return <div className="notesLayout"><div className={`sharedDataBadge wideSync ${!notesDirty&&notesSync==='synced'&&contactsSync==='synced'?'synced':'saving'}`}>{!notesDirty&&notesSync==='synced'&&contactsSync==='synced'?'☁️ הפתקים ופרטי הקשר משותפים לכולם':notesDirty?'✍️ יש שינויים שלא נשמרו':'↻ מסנכרן מידע…'}</div>
+    <div className="notesCard"><h3>פתקים משפחתיים</h3><p>השינויים נשמרים 3 שניות אחרי שמפסיקים להקליד, או מיד בלחיצה על „עדכן עכשיו”.</p><textarea rows="10" value={draftNotes} onChange={e=>updateNotes(e.target.value)} placeholder="מספרי הזמנה, דברים לקנות, שינויי תוכנית..."/><div className="notesSaveBar"><span className={notesDirty?'pending':''}>{notesMessage||notesStatus}</span><button className="button notesSaveButton" type="button" disabled={!notesDirty} onClick={saveNotes}>עדכן עכשיו</button></div></div>
     <div className="contactsCard"><h3>פרטי קשר והזמנות</h3>{contactFields.map(([id,label])=><label key={id}><span>{label}</span><input value={contacts[id]} onChange={e=>updateContact(id,e.target.value)} placeholder="מספר, כתובת או הערה"/></label>)}</div>
     <div className="backupCard"><h3>גיבוי כלי הטיול</h3><p>הורידו גיבוי של כל הנתונים המשותפים ב־Supabase: צ׳ק־ליסט, תקציב, הוצאות, פתקים, דירוגים, חניה ומשימות. תמונות ה־Story Line נשמרות בענן בנפרד.</p><div><button className="button backupButton" onClick={exportData}>הורדת גיבוי</button><button className="softButton" onClick={()=>fileRef.current?.click()}>שחזור גיבוי</button><input ref={fileRef} hidden type="file" accept="application/json" onChange={importData}/></div></div>
   </div>
