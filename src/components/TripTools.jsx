@@ -188,6 +188,11 @@ function ConnectionStatus(){
 
 export default function TripTools(){
   const [tab,setTab]=useState('weather');
+  useEffect(()=>{
+    const openTab=e=>{const next=e.detail;if(['weather','budget','check','notes'].includes(next))setTab(next)};
+    addEventListener('open-tool-tab',openTab);
+    return()=>removeEventListener('open-tool-tab',openTab);
+  },[]);
   return <section className="section container" id="tools">
     <div className="sectionHead"><div><span className="eyebrow">כלים חכמים</span><h2>מרכז השליטה של הטיול</h2></div><p>מזג אוויר חי, מחשבון אירו, תקציב מפורט, רשימת הכנות, פתקים וגיבוי מקומי.</p></div>
     <ConnectionStatus/>

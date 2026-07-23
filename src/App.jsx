@@ -13,16 +13,18 @@ import TranslatorHub from './components/TranslatorHub.jsx';
 import LiveLocationHub from './components/LiveLocationHub.jsx';
 import LiveCamsHub from './components/LiveCamsHub.jsx';
 import NearbyHub from './components/NearbyHub.jsx';
+import MobileQuickMenu from './components/MobileQuickMenu.jsx';
 import { days, destinations, restaurants, shopping } from './data/tripData.js';
 
 const nav=[
   ['home','בית'],['experience','עכשיו'],['itinerary','מסלול'],['story','יומן'],['locations','איפה כולם'],['nearby','סביבנו'],['livecams','מצלמות'],['stays','לינות'],['translator','תרגום'],['tools','כלים']
 ];
-const mobileNav=nav.filter(([id])=>['home','experience','itinerary','story','nearby','locations'].includes(id));
+const mobileNav=nav.filter(([id])=>['home','experience','itinerary','story'].includes(id));
 
 export default function App(){
   const [active,setActive]=useState('home');
   const [showTop,setShowTop]=useState(false);
+  const [quickMenuOpen,setQuickMenuOpen]=useState(false);
   useEffect(()=>{
     const onScroll=()=>setShowTop(window.scrollY>900);
     window.addEventListener('scroll',onScroll,{passive:true});
@@ -35,6 +37,10 @@ export default function App(){
     return ()=>{observer.disconnect();window.removeEventListener('scroll',onScroll)};
   },[]);
   const go=id=>document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  const quickNavigate=item=>{
+    if(item.toolTab)dispatchEvent(new CustomEvent('open-tool-tab',{detail:item.toolTab}));
+    requestAnimationFrame(()=>go(item.id));
+  };
   return <>
     <div id="home" data-nav-section><Hero onStart={()=>go('itinerary')}/></div>
     <nav className="topNav"><div className="container navInner">
@@ -63,7 +69,8 @@ export default function App(){
       </section>
     </main>
     {showTop&&<button className="scrollTopButton" aria-label="חזרה לראש הדף" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>↑</button>}
-    <nav className="bottomNav">{mobileNav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':id==='story'?'✦':id==='locations'?'◎':id==='nearby'?'✺':id==='stays'?'⌂':id==='translator'?'文':id==='food'?'◉':'✓'}</span>{label}</button>)}</nav>
+    <nav className="bottomNav premiumBottomNav">{mobileNav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>go(id)}><span>{id==='home'?'⌂':id==='itinerary'?'☷':id==='experience'?'⚡':'✦'}</span>{label}</button>)}<button className={quickMenuOpen?'active menuLauncher':''} onClick={()=>setQuickMenuOpen(true)}><span>☰</span>כל האזורים</button></nav>
+    <MobileQuickMenu open={quickMenuOpen} onClose={()=>setQuickMenuOpen(false)} onNavigate={quickNavigate}/>
     <footer><div className="container"><div><b>הטיול של משפחת אביטן</b><p>הטיול המשפחתי שלנו לרומא, סורנטו וחוף אמאלפי.</p></div><p>יש לבדוק סמוך לנסיעה שעות פתיחה, מעבורות, הזמנות ומגבלות כביש.</p></div></footer>
   </>
 }
