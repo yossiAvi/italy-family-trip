@@ -9,10 +9,11 @@ export default function FoodExplorer({restaurants}){
   const list=useMemo(()=>restaurants.filter(r=>(city==='הכול'||r.city===city)&&(category==='הכול'||r.category===category)&&(!kosherOnly||r.kosher.startsWith('כשר'))),[restaurants,city,category,kosherOnly]);
   return <section className="section container" id="food">
     <div className="sectionHead"><div><span className="eyebrow">אוכל</span><h2>הטעימות של משפחת אביטן</h2></div><p>ארוחות בוקר, פיצה, פסטה, ג׳לטו וטירמיסו ששולבו במסלול לפי האזור. שעות, ימי סגירה וכשרות דורשים אימות סמוך לביקור.</p></div>
-    <div className="filters foodFilters">
-      <div><small>אזור</small><div className="filterScroller">{cities.map(c=><button className={city===c?'active':''} onClick={()=>setCity(c)} key={c}>{c}</button>)}</div></div>
-      <div><small>סוג</small><div className="filterScroller">{categories.map(c=><button className={category===c?'active':''} onClick={()=>setCategory(c)} key={c}>{c}</button>)}</div></div>
-      <label className="toggle"><input type="checkbox" checked={kosherOnly} onChange={e=>setKosherOnly(e.target.checked)}/><span/>כשר בלבד</label>
+    <div className="compactFilters foodFilters">
+      <label className="filterField"><span>אזור</span><select value={city} onChange={e=>setCity(e.target.value)}>{cities.map(c=><option key={c}>{c}</option>)}</select></label>
+      <label className="filterField"><span>סוג אוכל</span><select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
+      <label className="toggle filterToggle"><input type="checkbox" checked={kosherOnly} onChange={e=>setKosherOnly(e.target.checked)}/><span/>כשר בלבד</label>
+      <div className="filterSummary"><b>{list.length}</b><small>מקומות מתאימים</small></div>
     </div>
     <div className="restaurantGrid">{list.map(r=><article className="restaurantCard" key={`${r.city}-${r.name}`}>
       <div className="restaurantTop"><span className={`kosherTag ${r.kosher.startsWith('כשר')?'yes':'no'}`}>{r.kosher}</span><span>{r.price}</span></div>

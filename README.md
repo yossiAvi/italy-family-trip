@@ -54,3 +54,7 @@ npm run build
 - מפת זיכרונות ודרכונים
 - נגן מסע
 - התקנת PWA ונגישות
+
+## Version 2.0 – Shared family data
+
+Run the full `supabase/storyline.sql` once to enable the `trip_shared_data` table, Realtime synchronization and the shared image bucket. See `SUPABASE_SHARED_DATA_HE.md`.

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { weatherCities } from '../data/tripData.js';
+import useSharedTripData from '../lib/useSharedTripData.js';
+import { exportAllSharedData, importAllSharedData } from '../lib/sharedStore.js';
 
 function Weather(){
   const [data,setData]=useState([]);
@@ -42,18 +44,18 @@ function CurrencyConverter(){
 }
 
 function Budget(){
-  const [values,setValues]=useState(()=>Object.fromEntries(budgetFields.map(k=>[k,Number(localStorage.getItem(`budget:${k}`)||0)])));
-  const [expenses,setExpenses]=useState(()=>JSON.parse(localStorage.getItem('tripExpenses')||'[]'));
+  const [values,setValues,budgetSync]=useSharedTripData('budget-plan',()=>Object.fromEntries(budgetFields.map(k=>[k,0])),()=>Object.fromEntries(budgetFields.map(k=>[k,Number(localStorage.getItem(`budget:${k}`)||0)])));
+  const [expenses,setExpenses,expensesSync]=useSharedTripData('expenses',[],()=>JSON.parse(localStorage.getItem('tripExpenses')||'[]'));
   const [form,setForm]=useState({item:'',store:'',category:'אוכל',price:'',currency:'EUR',payment:'אשראי',note:''});
   const rate=Number(localStorage.getItem('eurIlsRate')||4);
   const planned=useMemo(()=>Object.values(values).reduce((a,b)=>a+Number(b||0),0),[values]);
   const spent=useMemo(()=>expenses.reduce((sum,e)=>sum+(e.currency==='EUR'?Number(e.price||0)*rate:Number(e.price||0)),0),[expenses,rate]);
-  const update=(k,v)=>{setValues(old=>({...old,[k]:v}));localStorage.setItem(`budget:${k}`,v)};
-  const persist=list=>{setExpenses(list);localStorage.setItem('tripExpenses',JSON.stringify(list))};
+  const update=(k,v)=>setValues(old=>({...old,[k]:Number(v||0)}));
+  const persist=list=>setExpenses(list);
   const addExpense=e=>{e.preventDefault();if(!form.item.trim()||!Number(form.price))return;persist([{...form,id:Date.now(),createdAt:new Date().toISOString()},...expenses]);setForm({...form,item:'',store:'',price:'',note:''})};
   const remove=id=>persist(expenses.filter(e=>e.id!==id));
   const exportCsv=()=>{const rows=[['פריט','מקום קנייה','קטגוריה','מחיר','מטבע','אמצעי תשלום','הערה'],...expenses.map(e=>[e.item,e.store,e.category,e.price,e.currency,e.payment,e.note])];const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v||'').replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='italy-trip-expenses.csv';a.click();URL.revokeObjectURL(a.href)};
-  return <div className="budgetHub">
+  return <div className="budgetHub"><div className={`sharedDataBadge ${budgetSync==='synced'&&expensesSync==='synced'?'synced':'saving'}`}>{budgetSync==='synced'&&expensesSync==='synced'?'☁️ התקציב מסונכרן למשפחה':'↻ מסנכרן נתונים…'}</div>
     <CurrencyConverter/>
     <div className="budgetLayout"><div className="budgetFields">{budgetFields.map(k=><label key={k}><span>{k}</span><input type="number" inputMode="numeric" min="0" value={values[k]} onChange={e=>update(k,e.target.value)}/></label>)}</div><div className="budgetTotal"><span>תקציב מתוכנן</span><strong>{planned.toLocaleString('he-IL')} ₪</strong><small>הוצאות שתועדו: {Math.round(spent).toLocaleString('he-IL')} ₪</small><b className={planned-spent<0?'overBudget':''}>{planned-spent>=0?'נותרו':'חריגה'} {Math.abs(Math.round(planned-spent)).toLocaleString('he-IL')} ₪</b></div></div>
     <section className="expenseLedger"><header><div><span className="eyebrow">יומן הוצאות</span><h3>מה קנינו, איפה וכמה שילמנו</h3></div>{expenses.length>0&&<button className="softButton" onClick={exportCsv}>ייצוא CSV</button>}</header>
@@ -96,8 +98,9 @@ const checklistGroups=[
 const allDefaultTasks=checklistGroups.flatMap(g=>g.items.map((text,index)=>({id:`${g.id}:${index}`,group:g.id,text,custom:false})));
 
 function Checklist(){
-  const [done,setDone]=useState(()=>new Set(JSON.parse(localStorage.getItem('tripChecklistDone')||localStorage.getItem('tripTasks')||'[]')));
-  const [custom,setCustom]=useState(()=>JSON.parse(localStorage.getItem('tripChecklistCustom')||'[]'));
+  const [doneArray,setDoneArray,checkSync]=useSharedTripData('checklist-done',[],()=>JSON.parse(localStorage.getItem('tripChecklistDone')||localStorage.getItem('tripTasks')||'[]'));
+  const done=new Set(doneArray);
+  const [custom,setCustom]=useSharedTripData('checklist-custom',[],()=>JSON.parse(localStorage.getItem('tripChecklistCustom')||'[]'));
   const [activeGroup,setActiveGroup]=useState('all');
   const [newTask,setNewTask]=useState('');
   const [newGroup,setNewGroup]=useState('documents');
@@ -107,20 +110,20 @@ function Checklist(){
   const complete=tasks.filter(t=>done.has(t.id)).length;
   const percent=tasks.length?Math.round(complete/tasks.length*100):0;
 
-  const persistDone=next=>{setDone(next);localStorage.setItem('tripChecklistDone',JSON.stringify([...next]))};
+  const persistDone=next=>setDoneArray([...next]);
   const toggle=id=>{const next=new Set(done);next.has(id)?next.delete(id):next.add(id);persistDone(next)};
   const resetGroup=group=>{const ids=new Set(tasks.filter(t=>t.group===group).map(t=>t.id));persistDone(new Set([...done].filter(id=>!ids.has(id))))};
-  const addTask=e=>{e.preventDefault();const text=newTask.trim();if(!text)return;const item={id:`custom:${Date.now()}`,group:newGroup,text,custom:true};const next=[...custom,item];setCustom(next);localStorage.setItem('tripChecklistCustom',JSON.stringify(next));setNewTask('')};
-  const removeCustom=id=>{const next=custom.filter(t=>t.id!==id);setCustom(next);localStorage.setItem('tripChecklistCustom',JSON.stringify(next));const doneNext=new Set(done);doneNext.delete(id);persistDone(doneNext)};
+  const addTask=e=>{e.preventDefault();const text=newTask.trim();if(!text)return;const item={id:`custom:${Date.now()}`,group:newGroup,text,custom:true};const next=[...custom,item];setCustom(next);setNewTask('')};
+  const removeCustom=id=>{const next=custom.filter(t=>t.id!==id);setCustom(next);const doneNext=new Set(done);doneNext.delete(id);persistDone(doneNext)};
 
-  return <div className="checklistHub">
+  return <div className="checklistHub"><div className={`sharedDataBadge ${checkSync==='synced'?'synced':'saving'}`}>{checkSync==='synced'?'☁️ הצ׳ק־ליסט משותף לכולם':'↻ מסנכרן צ׳ק־ליסט…'}</div>
     <div className="checklistOverview">
       <div><strong>{percent}%</strong><span>{complete} מתוך {tasks.length} משימות הושלמו</span></div>
       <div className="progress" aria-label={`התקדמות ${percent}%`}><span style={{width:`${percent}%`}}/></div>
     </div>
-    <div className="checklistFilters" role="tablist">
-      <button className={activeGroup==='all'?'active':''} onClick={()=>setActiveGroup('all')}>הכול</button>
-      {checklistGroups.map(g=><button className={activeGroup===g.id?'active':''} onClick={()=>setActiveGroup(g.id)} key={g.id}>{g.icon} {g.title}</button>)}
+    <div className="checklistFilterBar">
+      <label className="filterField"><span>הצגת קטגוריה</span><select value={activeGroup} onChange={e=>setActiveGroup(e.target.value)}><option value="all">כל הקטגוריות</option>{checklistGroups.map(g=><option value={g.id} key={g.id}>{g.icon} {g.title}</option>)}</select></label>
+      <div className="filterSummary"><b>{visible.length}</b><small>פריטים מוצגים</small></div>
     </div>
     {checklistGroups.filter(g=>activeGroup==='all'||activeGroup===g.id).map(group=>{
       const groupTasks=visible.filter(t=>t.group===group.id);
@@ -144,20 +147,17 @@ const contactFields=[
   ['airline','חברת תעופה / מספר טיסה'],['insurance','ביטוח נסיעות / מוקד'],['rental','חברת השכרת רכב'],['romeHotel','לינה ברומא'],['southHotel','לינה בדרום'],['lastHotel','לינה ליד פיומיצ׳ינו']
 ];
 function NotesAndBackup(){
-  const [notes,setNotes]=useState(()=>localStorage.getItem('tripQuickNotes')||'');
-  const [contacts,setContacts]=useState(()=>Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])));
+  const [notes,setNotes,notesSync]=useSharedTripData('quick-notes','',()=>localStorage.getItem('tripQuickNotes')||'');
+  const [contacts,setContacts,contactsSync]=useSharedTripData('trip-contacts',()=>Object.fromEntries(contactFields.map(([id])=>[id,''])),()=>Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])));
   const fileRef=useRef(null);
-  const updateNotes=value=>{setNotes(value);localStorage.setItem('tripQuickNotes',value)};
-  const updateContact=(id,value)=>{setContacts(old=>({...old,[id]:value}));localStorage.setItem(`tripContact:${id}`,value)};
-  const exportData=()=>{
-    const data={version:1,exportedAt:new Date().toISOString(),checklistDone:JSON.parse(localStorage.getItem('tripChecklistDone')||'[]'),checklistCustom:JSON.parse(localStorage.getItem('tripChecklistCustom')||'[]'),notes:localStorage.getItem('tripQuickNotes')||'',contacts:Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])),budget:Object.fromEntries(budgetFields.map(k=>[k,localStorage.getItem(`budget:${k}`)||'0'])),expenses:JSON.parse(localStorage.getItem('tripExpenses')||'[]'),eurIlsRate:localStorage.getItem('eurIlsRate')||''};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='italy-trip-backup.json';a.click();URL.revokeObjectURL(url)
-  };
-  const importData=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());localStorage.setItem('tripChecklistDone',JSON.stringify(data.checklistDone||[]));localStorage.setItem('tripChecklistCustom',JSON.stringify(data.checklistCustom||[]));localStorage.setItem('tripQuickNotes',data.notes||'');Object.entries(data.contacts||{}).forEach(([id,value])=>localStorage.setItem(`tripContact:${id}`,value));Object.entries(data.budget||{}).forEach(([k,value])=>localStorage.setItem(`budget:${k}`,value));localStorage.setItem('tripExpenses',JSON.stringify(data.expenses||[]));if(data.eurIlsRate)localStorage.setItem('eurIlsRate',data.eurIlsRate);location.reload()}catch{alert('קובץ הגיבוי אינו תקין')}finally{e.target.value=''}};
-  return <div className="notesLayout">
-    <div className="notesCard"><h3>פתקים משפחתיים</h3><p>רשמו כאן דברים שחשוב לזכור. הפתק נשמר אוטומטית במכשיר.</p><textarea rows="10" value={notes} onChange={e=>updateNotes(e.target.value)} placeholder="מספרי הזמנה, דברים לקנות, שינויי תוכנית..."/></div>
+  const updateNotes=value=>setNotes(value);
+  const updateContact=(id,value)=>setContacts(old=>({...old,[id]:value}));
+  const exportData=async()=>{try{const data=await exportAllSharedData()||{version:2,exportedAt:new Date().toISOString(),shared:{'quick-notes':notes,'trip-contacts':contacts}};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='italy-trip-shared-backup.json';a.click();URL.revokeObjectURL(url)}catch{alert('לא הצלחנו ליצור גיבוי כרגע')}};
+  const importData=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());await importAllSharedData(data.shared||{});location.reload()}catch{alert('קובץ הגיבוי אינו תקין')}finally{e.target.value=''}};
+  return <div className="notesLayout"><div className={`sharedDataBadge wideSync ${notesSync==='synced'&&contactsSync==='synced'?'synced':'saving'}`}>{notesSync==='synced'&&contactsSync==='synced'?'☁️ הפתקים ופרטי הקשר משותפים לכולם':'↻ מסנכרן מידע…'}</div>
+    <div className="notesCard"><h3>פתקים משפחתיים</h3><p>רשמו כאן דברים שחשוב לזכור. הפתק נשמר אוטומטית ומסתנכרן לכל בני המשפחה.</p><textarea rows="10" value={notes} onChange={e=>updateNotes(e.target.value)} placeholder="מספרי הזמנה, דברים לקנות, שינויי תוכנית..."/></div>
     <div className="contactsCard"><h3>פרטי קשר והזמנות</h3>{contactFields.map(([id,label])=><label key={id}><span>{label}</span><input value={contacts[id]} onChange={e=>updateContact(id,e.target.value)} placeholder="מספר, כתובת או הערה"/></label>)}</div>
-    <div className="backupCard"><h3>גיבוי כלי הטיול</h3><p>הורידו קובץ גיבוי של הצ׳ק־ליסט, התקציב, הפתקים ופרטי הקשר. תמונות ה־Story Line מגובות בנפרד דרך Supabase.</p><div><button className="button backupButton" onClick={exportData}>הורדת גיבוי</button><button className="softButton" onClick={()=>fileRef.current?.click()}>שחזור גיבוי</button><input ref={fileRef} hidden type="file" accept="application/json" onChange={importData}/></div></div>
+    <div className="backupCard"><h3>גיבוי כלי הטיול</h3><p>הורידו גיבוי של כל הנתונים המשותפים ב־Supabase: צ׳ק־ליסט, תקציב, הוצאות, פתקים, דירוגים, חניה ומשימות. תמונות ה־Story Line נשמרות בענן בנפרד.</p><div><button className="button backupButton" onClick={exportData}>הורדת גיבוי</button><button className="softButton" onClick={()=>fileRef.current?.click()}>שחזור גיבוי</button><input ref={fileRef} hidden type="file" accept="application/json" onChange={importData}/></div></div>
   </div>
 }
 
@@ -172,7 +172,7 @@ export default function TripTools(){
   return <section className="section container" id="tools">
     <div className="sectionHead"><div><span className="eyebrow">כלים חכמים</span><h2>מרכז השליטה של הטיול</h2></div><p>מזג אוויר חי, מחשבון אירו, תקציב מפורט, רשימת הכנות, פתקים וגיבוי מקומי.</p></div>
     <ConnectionStatus/>
-    <div className="toolTabs"><button className={tab==='weather'?'active':''} onClick={()=>setTab('weather')}>מזג אוויר</button><button className={tab==='budget'?'active':''} onClick={()=>setTab('budget')}>תקציב</button><button className={tab==='check'?'active':''} onClick={()=>setTab('check')}>צ׳ק־ליסט</button><button className={tab==='notes'?'active':''} onClick={()=>setTab('notes')}>פתקים וגיבוי</button></div>
+    <div className="toolTabs"><button className={tab==='weather'?'active':''} onClick={()=>setTab('weather')}><span>☀️</span><b>מזג אוויר</b></button><button className={tab==='budget'?'active':''} onClick={()=>setTab('budget')}><span>💶</span><b>תקציב</b></button><button className={tab==='check'?'active':''} onClick={()=>setTab('check')}><span>✅</span><b>צ׳ק־ליסט</b></button><button className={tab==='notes'?'active':''} onClick={()=>setTab('notes')}><span>📝</span><b>פתקים וגיבוי</b></button></div>
     <div className="toolPanel">{tab==='weather'?<Weather/>:tab==='budget'?<Budget/>:tab==='check'?<Checklist/>:<NotesAndBackup/>}</div>
   </section>
 }

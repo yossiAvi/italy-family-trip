@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import useSharedTripData from '../lib/useSharedTripData.js';
 
 const phraseGroups = [
   {name:'בסיסי', icon:'👋', phrases:[
@@ -34,9 +35,7 @@ export default function TranslatorHub(){
   const [source,setSource]=useState('he');
   const [text,setText]=useState('');
   const [activeGroup,setActiveGroup]=useState('בסיסי');
-  const [saved,setSaved]=useState(()=>{
-    try{return JSON.parse(localStorage.getItem('avitan-saved-phrases')||'[]')}catch{return []}
-  });
+  const [saved,setSaved,savedSync]=useSharedTripData('saved-phrases',[],()=>{try{return JSON.parse(localStorage.getItem('avitan-saved-phrases')||'[]')}catch{return []}});
   const target=source==='he'?'it':'he';
   const sourceLabel=source==='he'?'עברית':'איטלקית';
   const targetLabel=target==='it'?'איטלקית':'עברית';
@@ -46,11 +45,11 @@ export default function TranslatorHub(){
     const item={he,it};
     const exists=saved.some(x=>x.he===he&&x.it===it);
     const next=exists?saved.filter(x=>!(x.he===he&&x.it===it)):[item,...saved].slice(0,20);
-    setSaved(next);localStorage.setItem('avitan-saved-phrases',JSON.stringify(next));
+    setSaved(next);
   };
   const usePhrase=(he,it)=>{setSource('he');setText(he);setTimeout(()=>window.open(`https://translate.google.com/?sl=he&tl=it&text=${encodeURIComponent(he)}&op=translate`,'_blank','noopener,noreferrer'),50)};
   return <section id="translator" data-nav-section className="section translatorSection">
-    <div className="container">
+    <div className="container"><div className={`sharedDataBadge translatorSync ${savedSync==='synced'?'synced':'saving'}`}>{savedSync==='synced'?'☁️ המשפטים השמורים משותפים למשפחה':'↻ מסנכרן משפטים…'}</div>
       <div className="sectionHead translatorHead"><div><span className="eyebrow">Parliamo italiano 🇮🇹</span><h2>המתרגם המשפחתי</h2></div><p>משפטים שימושיים, הקראה באיטלקית ופתיחה מיידית ב־Google Translate.</p></div>
       <div className="translatorHero">
         <div className="translateComposer">
@@ -69,7 +68,7 @@ export default function TranslatorHub(){
         const isSaved=saved.some(x=>x.he===he&&x.it===it);
         return <article key={he}><div><b>{he}</b><strong>{it}</strong></div><div><button title="שמיעה באיטלקית" onClick={()=>speak(it,'it-IT')}>🔊</button><button title="פתיחה ב-Google Translate" onClick={()=>usePhrase(he,it)}>G</button><button className={isSaved?'saved':''} title="שמירה למועדפים" onClick={()=>savePhrase(he,it)}>{isSaved?'★':'☆'}</button></div></article>
       })}</div>
-      {saved.length>0&&<div className="savedPhrases"><header><div><span>⭐</span><div><h3>המשפטים ששמרנו</h3><p>גישה מהירה גם בזמן אמת.</p></div></div><button onClick={()=>{setSaved([]);localStorage.removeItem('avitan-saved-phrases')}}>ניקוי</button></header><div>{saved.map(({he,it})=><button key={`${he}-${it}`} onClick={()=>speak(it,'it-IT')}><b>{he}</b><span>{it}</span><i>🔊</i></button>)}</div></div>}
+      {saved.length>0&&<div className="savedPhrases"><header><div><span>⭐</span><div><h3>המשפטים ששמרנו</h3><p>גישה מהירה גם בזמן אמת.</p></div></div><button onClick={()=>setSaved([])}>ניקוי</button></header><div>{saved.map(({he,it})=><button key={`${he}-${it}`} onClick={()=>speak(it,'it-IT')}><b>{he}</b><span>{it}</span><i>🔊</i></button>)}</div></div>}
     </div>
   </section>
 }

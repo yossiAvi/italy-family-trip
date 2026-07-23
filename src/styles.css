@@ -101,3 +101,47 @@ h1,h2,h3,h4,.brand,.countdown,.introGrid span,.budgetTotal strong,.currencyResul
 footer{background:linear-gradient(120deg,#052f39,#083f49);color:#fff}
 @media(max-width:650px){body{font-size:16px}.section{padding:58px 0}.heroCopy h1{font-size:clamp(2.7rem,13vw,4rem)}.destinationCard{border-radius:26px}.destinationCard:after{display:none}.dayCard,.storyComposer,.storyCardInner,.lodgingCard,.translatorCard,.expenseLedger,.currencyCard{border-radius:24px}.budgetLayout{border-radius:24px;padding:16px}.expenseForm{padding:12px}.sectionHead h2{font-size:2.25rem}.topNav{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* v2.0 shared family data + lodging refinements */
+.sharedDataBadge{display:inline-flex;align-items:center;gap:7px;width:max-content;max-width:100%;margin:0 0 14px;padding:8px 12px;border-radius:999px;background:#fff2ce;color:#735a15;border:1px solid #f0d37a;font-size:.78rem;font-weight:900;box-shadow:0 8px 24px rgba(46,63,73,.08)}
+.sharedDataBadge.synced{background:#e6f8ef;color:#176543;border-color:#a8e3c7}.sharedDataBadge.wideSync{grid-column:1/-1}.translatorSync{margin-inline-start:auto}
+.shoppingSection .sectionHead h2{background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;color:#fff!important;text-shadow:0 3px 16px rgba(0,0,0,.32)}
+.shoppingSection .sectionHead .eyebrow{color:#ffe28a}.shoppingSection .sectionHead p{color:#f4f8f8;font-weight:650;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.lodgingCard footer{flex-wrap:wrap}.lodgingSite{background:#fff0c9;color:#634500;border:1px solid #f0cc6b}
+@media(max-width:650px){.sharedDataBadge{font-size:.72rem}.translatorSync{margin-inline-start:0}.lodgingCard footer .button{flex:1 1 100%}}
+
+/* v2.1 UI clarity and compact navigation */
+:root{--surface:#ffffff;--surface-soft:#f6faf9;--text-strong:#12363d;--text-soft:#50686d;--focus:#087f8c}
+.sectionHead h2{color:var(--text-strong);-webkit-text-fill-color:initial;background:none;text-shadow:none}
+.sectionHead p{color:var(--text-soft)}
+.toolPanel,.restaurantCard,.expenseLedger,.savedPhrases,.notesCard,.contactsCard,.backupCard{color:var(--text-strong)}
+.toolPanel p,.toolPanel small,.restaurantCard p,.notesCard p,.backupCard p{color:var(--text-soft)}
+.compactFilters,.shoppingFilterBar,.checklistFilterBar{display:grid;grid-template-columns:minmax(190px,1fr) minmax(190px,1fr) auto auto;gap:12px;align-items:end;margin:0 0 22px;padding:15px;background:rgba(255,255,255,.9);border:1px solid rgba(8,127,140,.13);border-radius:22px;box-shadow:0 12px 32px rgba(22,68,76,.08)}
+.shoppingFilterBar,.checklistFilterBar{grid-template-columns:minmax(230px,420px) auto;justify-content:space-between}
+.filterField{display:grid;gap:6px;min-width:0}.filterField>span{font-size:.77rem;font-weight:900;color:var(--text-soft)}
+.filterField select{width:100%;min-height:48px;border:1px solid #cddcda;border-radius:14px;padding:0 14px;background:#fff;color:var(--text-strong);font:800 .95rem/1 'Heebo',sans-serif;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+.filterField select:focus{outline:3px solid rgba(8,127,140,.2);border-color:var(--focus)}
+.filterToggle{min-height:48px;padding:0 6px;align-self:end}.filterSummary{display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:92px;min-height:48px;border-radius:14px;background:linear-gradient(135deg,#e7f8f4,#fff5d4);color:var(--text-strong)}.filterSummary b{font-size:1.15rem}.filterSummary small{font-size:.7rem;color:var(--text-soft)}
+.shoppingFilterBar{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22)}.darkField>span{color:#f4fbfa}.darkField select{background:#fff;color:#173b42;border-color:transparent}.darkSummary{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.2)}.darkSummary small{color:rgba(255,255,255,.8)}
+.toolTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;padding:0;background:transparent;box-shadow:none;border-radius:0;overflow:visible}.toolTabs button{display:flex;flex-direction:column;align-items:center;gap:5px;min-height:76px;padding:12px 8px;background:#fff;border:1px solid rgba(8,127,140,.13);border-radius:18px;color:var(--text-soft);box-shadow:0 8px 24px rgba(22,68,76,.06)}.toolTabs button span{font-size:1.35rem}.toolTabs button b{font-size:.85rem}.toolTabs button.active{background:linear-gradient(145deg,#0b6873,#087f8c);color:#fff;border-color:transparent;box-shadow:0 12px 28px rgba(8,127,140,.24)}
+.premiumTabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;overflow:visible!important;padding:0!important}.premiumTabs button{min-width:0!important;border-radius:18px!important;min-height:78px!important;white-space:normal!important}.premiumTabs button b{font-size:.78rem}.premiumTabs button span{font-size:1.35rem}
+.phraseTabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));overflow:visible;gap:8px}.phraseTabs button{white-space:normal;min-height:46px}
+.checklistFilters{display:none}
+.restaurantTop span:last-child,.budgetFields input,.currencyBody input{color:#173b42!important}
+.restaurantCard,.shoppingCard,.lodgingCard,.phraseGrid article,.expenseList article{isolation:isolate}
+.restaurantCard h3,.shoppingCard h3,.lodgingCard h3,.phraseGrid b,.expenseList b{color:inherit}
+.shoppingCard{color:#fff}.shoppingCard h3{color:#fff}.shoppingCard p,.shoppingCard div>span{color:rgba(255,255,255,.86)}
+.button:focus-visible,button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #ffca52;outline-offset:3px}
+@media(max-width:780px){
+  .compactFilters{grid-template-columns:1fr 1fr}.filterToggle{padding:8px 2px}.filterSummary{min-width:0}
+  .premiumTabs{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:650px){
+  .compactFilters,.shoppingFilterBar,.checklistFilterBar{grid-template-columns:1fr;padding:12px;border-radius:18px;gap:10px}.compactFilters .filterSummary,.shoppingFilterBar .filterSummary,.checklistFilterBar .filterSummary{display:none}
+  .filterField select{min-height:52px;font-size:1rem}.filterToggle{justify-self:start;min-height:44px}
+  .toolTabs{grid-template-columns:repeat(2,1fr);gap:8px}.toolTabs button{min-height:68px;border-radius:16px}.toolTabs button span{font-size:1.2rem}
+  .premiumTabs{grid-template-columns:repeat(2,1fr);gap:8px}.premiumTabs button:last-child{grid-column:1/-1}.premiumTabs button{min-height:66px!important}
+  .phraseTabs{grid-template-columns:1fr 1fr}.phraseTabs button{font-size:.8rem;padding:8px}
+  .sectionHead h2{font-size:clamp(1.9rem,9vw,2.45rem);line-height:1.08}.sectionHead p{font-size:.96rem;line-height:1.65}
+  .restaurantCard,.shoppingCard,.toolPanel{overflow:hidden}.restaurantTop{flex-wrap:wrap}
+}

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import useSharedTripData from '../lib/useSharedTripData.js';
+import { uploadSharedImage } from '../lib/sharedStore.js';
 
 const tripStart = new Date('2026-07-27T00:00:00');
 const tripEnd = new Date('2026-08-06T23:59:59');
@@ -23,12 +25,6 @@ const missions = [
 function dateKey(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
 function dayDate(index){const d=new Date(tripStart);d.setDate(d.getDate()+index);return d}
 function mapsLink(query){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`}
-
-function useStoredState(key, initial){
-  const [value,setValue]=useState(()=>{try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):initial}catch{return initial}});
-  const update=next=>setValue(old=>{const resolved=typeof next==='function'?next(old):next;localStorage.setItem(key,JSON.stringify(resolved));return resolved});
-  return [value,update];
-}
 
 function SmartToday({days,onOpenDay,onAddStory}){
   const currentIndex=useMemo(()=>{
@@ -62,8 +58,7 @@ function SmartToday({days,onOpenDay,onAddStory}){
 function KidsMode({days,onAddStory}){
   const [activeDay,setActiveDay]=useState(0);
   const key=`kidMissions:${days[activeDay]?.date}`;
-  const [done,setDone]=useStoredState(key,[]);
-  useEffect(()=>{try{setDone(JSON.parse(localStorage.getItem(key)||'[]'))}catch{setDone([])}},[key]);
+  const [done,setDone]=useSharedTripData(key,[],()=>JSON.parse(localStorage.getItem(key)||'[]'));
   const toggle=id=>setDone(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);
   const points=missions.filter(m=>done.includes(m.id)).reduce((s,m)=>s+m.points,0);
   const badge=points>=100?'🏆 אלופי היום':points>=60?'🌟 חוקרי איטליה':points>=30?'🎒 הרפתקנים':'🚀 מתחילים';
@@ -76,13 +71,13 @@ function KidsMode({days,onAddStory}){
 }
 
 function ParkingCard(){
-  const [parking,setParking]=useStoredState('smartParking',{name:'',level:'',spot:'',note:'',lat:null,lng:null,photo:'',savedAt:null,reminder:''});
+  const [parking,setParking,parkingSync]=useSharedTripData('smart-parking',{name:'',level:'',spot:'',note:'',lat:null,lng:null,photo:'',savedAt:null,reminder:''},()=>{try{return JSON.parse(localStorage.getItem('smartParking')||'null')}catch{return null}});
   const fileRef=useRef(null);
   const update=(field,value)=>setParking(old=>({...old,[field]:value}));
   const captureLocation=()=>navigator.geolocation?.getCurrentPosition(pos=>setParking(old=>({...old,lat:pos.coords.latitude,lng:pos.coords.longitude,savedAt:new Date().toISOString()})),()=>alert('לא ניתן לקבל מיקום. בדקו הרשאת מיקום.'));
-  const addPhoto=e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>update('photo',reader.result);reader.readAsDataURL(file);e.target.value=''};
+  const addPhoto=async e=>{const file=e.target.files?.[0];if(!file)return;try{const url=await uploadSharedImage(file,'parking');if(url)update('photo',url);else{const reader=new FileReader();reader.onload=()=>update('photo',reader.result);reader.readAsDataURL(file)}}catch{alert('לא הצלחנו להעלות את התמונה. נסו שוב.')}finally{e.target.value=''}};
   const clear=()=>confirm('למחוק את כרטיס החניה?')&&setParking({name:'',level:'',spot:'',note:'',lat:null,lng:null,photo:'',savedAt:null,reminder:''});
-  return <article className="smartParkingCard premiumCard">
+  return <article className="smartParkingCard premiumCard"><div className={`sharedDataBadge ${parkingSync==='synced'?'synced':'saving'}`}>{parkingSync==='synced'?'☁️ החניה משותפת למשפחה':'↻ מסנכרן חניה…'}</div>
     <header><div><span className="premiumEyebrow">איפה הרכב?</span><h3>כרטיס חניה חכם</h3><p>שומרים תמונה, קומה, מקום ו־GPS — וחוזרים לרכב בלי לחץ.</p></div><span className="parkingIcon">🚗</span></header>
     {parking.photo&&<button className="parkingPhoto" onClick={()=>fileRef.current?.click()}><img src={parking.photo} alt="מקום החניה"/><span>החלפת תמונה</span></button>}
     <div className="parkingFields"><label><span>שם החניון</span><input value={parking.name} onChange={e=>update('name',e.target.value)} placeholder="לדוגמה: Garage Marina Piccola"/></label><label><span>קומה / אזור</span><input value={parking.level} onChange={e=>update('level',e.target.value)} placeholder="קומה 2"/></label><label><span>מספר מקום</span><input value={parking.spot} onChange={e=>update('spot',e.target.value)} placeholder="148"/></label><label><span>שעת חזרה</span><input type="time" value={parking.reminder} onChange={e=>update('reminder',e.target.value)}/></label><label className="wideField"><span>הערה</span><input value={parking.note} onChange={e=>update('note',e.target.value)} placeholder="ליד המעלית / כניסה צפונית"/></label></div>
@@ -92,14 +87,14 @@ function ParkingCard(){
 
 function FamilyRatings({days}){
   const [dayIndex,setDayIndex]=useState(0);
-  const [ratings,setRatings]=useStoredState('familyRatings',{});
+  const [ratings,setRatings,ratingsSync]=useSharedTripData('family-ratings',{},()=>{try{return JSON.parse(localStorage.getItem('familyRatings')||'{}')}catch{return {}}});
   const day=days[dayIndex];
   const dayRatings=ratings[day.date]||{};
   const setRating=(person,category,value)=>setRatings(old=>({...old,[day.date]:{...(old[day.date]||{}),[person]:{...((old[day.date]||{})[person]||{}),[category]:value}}}));
   const categories=[['fun','כיף'],['food','אוכל'],['place','המקום']];
   const emojis=['😐','🙂','😄','🤩','🏆'];
   const averages=categories.map(([id,label])=>{const vals=family.flatMap(p=>dayRatings[p.id]?.[id]?[dayRatings[p.id][id]]:[]);return {id,label,value:vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0}});
-  return <article className="ratingsCard premiumCard">
+  return <article className="ratingsCard premiumCard"><div className={`sharedDataBadge ${ratingsSync==='synced'?'synced':'saving'}`}>{ratingsSync==='synced'?'☁️ הדירוגים משותפים לכולם':'↻ מסנכרן דירוגים…'}</div>
     <header><div><span className="premiumEyebrow">סיכום משפחתי</span><h3>איך היה לנו היום?</h3><p>כל אחד מדרג בלחיצה — ובסוף נגלה מה היה המקום המנצח.</p></div><select value={dayIndex} onChange={e=>setDayIndex(Number(e.target.value))}>{days.map((d,i)=><option key={d.date} value={i}>{d.date} · {d.title}</option>)}</select></header>
     <div className="ratingPeople">{family.map(person=><section key={person.id}><div className="personTitle"><span>{person.emoji}</span><div><b>{person.name}</b><small>{person.role}</small></div></div>{categories.map(([id,label])=><div className="ratingRow" key={id}><span>{label}</span><div>{emojis.map((emoji,index)=><button key={emoji} className={dayRatings[person.id]?.[id]===index+1?'active':''} onClick={()=>setRating(person.id,id,index+1)} title={`${label}: ${index+1}`}>{emoji}</button>)}</div></div>)}</section>)}</div>
     <footer>{averages.map(a=><div key={a.id}><span>{a.label}</span><b>{a.value?`${a.value.toFixed(1)} / 5`:'ממתין לדירוג'}</b></div>)}</footer>
@@ -165,7 +160,7 @@ export default function PremiumExperience({days,destinations,onOpenDay,onAddStor
     <div className="sectionHead premiumHead"><div><span className="eyebrow">Avitan Travel Club</span><h2>מרכז החוויה המשפחתי</h2></div><p>כל מה שצריך בזמן אמת — מה עושים עכשיו, משימות לילדים, חניה, דירוגים וזיכרונות.</p></div>
     <InstallCard/>
     <AccessibilityBar/>
-    <div className="premiumTabs">{tabs.map(([id,icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>setTab(id)}><span>{icon}</span><b>{label}</b></button>)}</div>
+    <div className="premiumTabs" aria-label="כלי החוויה המשפחתית">{tabs.map(([id,icon,label])=><button key={id} className={tab===id?'active':''} onClick={()=>setTab(id)}><span>{icon}</span><b>{label}</b></button>)}</div>
     <div className="premiumPanel">{tab==='today'?<SmartToday days={days} onOpenDay={onOpenDay} onAddStory={onAddStory}/>:tab==='kids'?<KidsMode days={days} onAddStory={onAddStory}/>:tab==='parking'?<ParkingCard/>:tab==='ratings'?<FamilyRatings days={days}/>:<><JourneyPlayer/><MemoryMap destinations={destinations}/><FamilyPassports/></>}</div>
   </div></section>
 }
