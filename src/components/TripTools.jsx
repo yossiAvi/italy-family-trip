@@ -10,11 +10,57 @@ function Weather(){
 }
 
 const budgetFields=['טיסות','לינה ברומא','לינה בדרום','רכב ודלק','מעבורות ושיט','אטרקציות','אוכל','שופינג','אחר'];
+const expenseCategories=['אוכל','שופינג','תחבורה','אטרקציות','לינה','רכב ודלק','סופר וכשרות','אחר'];
+
+function CurrencyConverter(){
+  const [rate,setRate]=useState(()=>Number(localStorage.getItem('eurIlsRate')||0));
+  const [rateDate,setRateDate]=useState(localStorage.getItem('eurIlsRateDate')||'');
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState('');
+  const [direction,setDirection]=useState('ILS_EUR');
+  const [amount,setAmount]=useState('100');
+  const loadRate=async()=>{
+    setLoading(true);setError('');
+    try{
+      const response=await fetch('https://api.frankfurter.dev/v2/rate/EUR/ILS');
+      if(!response.ok)throw new Error('rate');
+      const data=await response.json();
+      const next=Number(data.rate);
+      if(!next)throw new Error('rate');
+      setRate(next);setRateDate(data.date||new Date().toISOString().slice(0,10));
+      localStorage.setItem('eurIlsRate',String(next));localStorage.setItem('eurIlsRateDate',data.date||'');
+    }catch{setError('לא ניתן לעדכן כרגע. מוצג השער האחרון שנשמר במכשיר.')}finally{setLoading(false)}
+  };
+  useEffect(()=>{loadRate()},[]);
+  const value=Number(amount||0);
+  const converted=rate?(direction==='ILS_EUR'?value/rate:value*rate):0;
+  return <section className="currencyCard">
+    <header><div><span>💱</span><div><h3>מחשבון שקל ↔ אירו</h3><small>{rate?`שער עדכני: €1 = ₪${rate.toFixed(4)} · ${rateDate||'עדכון אחרון'}`:'טוען שער עדכני…'}</small></div></div><button className="softButton" onClick={loadRate} disabled={loading}>{loading?'מעדכן…':'רענון שער'}</button></header>
+    <div className="currencyBody"><label><span>סכום</span><input type="number" inputMode="decimal" min="0" value={amount} onChange={e=>setAmount(e.target.value)}/></label><button className="currencySwap" onClick={()=>setDirection(v=>v==='ILS_EUR'?'EUR_ILS':'ILS_EUR')} aria-label="החלפת כיוון">⇄</button><div className="currencyResult"><small>{direction==='ILS_EUR'?'שקלים לאירו':'אירו לשקלים'}</small><strong>{direction==='ILS_EUR'?'€':'₪'}{converted.toLocaleString('he-IL',{maximumFractionDigits:2})}</strong></div></div>
+    <p className="currencyDisclaimer">שער ייחוס אונליין; חברת האשראי או הצ׳יינג׳ עשויים לחייב בשער שונה ובעמלה.</p>{error&&<p className="currencyError">{error}</p>}
+  </section>
+}
+
 function Budget(){
   const [values,setValues]=useState(()=>Object.fromEntries(budgetFields.map(k=>[k,Number(localStorage.getItem(`budget:${k}`)||0)])));
-  const total=useMemo(()=>Object.values(values).reduce((a,b)=>a+Number(b||0),0),[values]);
+  const [expenses,setExpenses]=useState(()=>JSON.parse(localStorage.getItem('tripExpenses')||'[]'));
+  const [form,setForm]=useState({item:'',store:'',category:'אוכל',price:'',currency:'EUR',payment:'אשראי',note:''});
+  const rate=Number(localStorage.getItem('eurIlsRate')||4);
+  const planned=useMemo(()=>Object.values(values).reduce((a,b)=>a+Number(b||0),0),[values]);
+  const spent=useMemo(()=>expenses.reduce((sum,e)=>sum+(e.currency==='EUR'?Number(e.price||0)*rate:Number(e.price||0)),0),[expenses,rate]);
   const update=(k,v)=>{setValues(old=>({...old,[k]:v}));localStorage.setItem(`budget:${k}`,v)};
-  return <div className="budgetLayout"><div className="budgetFields">{budgetFields.map(k=><label key={k}><span>{k}</span><input type="number" inputMode="numeric" min="0" value={values[k]} onChange={e=>update(k,e.target.value)}/></label>)}</div><div className="budgetTotal"><span>תקציב משפחתי</span><strong>{total.toLocaleString('he-IL')} ₪</strong><small>{Math.round(total/5).toLocaleString('he-IL')} ₪ לאדם</small></div></div>
+  const persist=list=>{setExpenses(list);localStorage.setItem('tripExpenses',JSON.stringify(list))};
+  const addExpense=e=>{e.preventDefault();if(!form.item.trim()||!Number(form.price))return;persist([{...form,id:Date.now(),createdAt:new Date().toISOString()},...expenses]);setForm({...form,item:'',store:'',price:'',note:''})};
+  const remove=id=>persist(expenses.filter(e=>e.id!==id));
+  const exportCsv=()=>{const rows=[['פריט','מקום קנייה','קטגוריה','מחיר','מטבע','אמצעי תשלום','הערה'],...expenses.map(e=>[e.item,e.store,e.category,e.price,e.currency,e.payment,e.note])];const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v||'').replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='italy-trip-expenses.csv';a.click();URL.revokeObjectURL(a.href)};
+  return <div className="budgetHub">
+    <CurrencyConverter/>
+    <div className="budgetLayout"><div className="budgetFields">{budgetFields.map(k=><label key={k}><span>{k}</span><input type="number" inputMode="numeric" min="0" value={values[k]} onChange={e=>update(k,e.target.value)}/></label>)}</div><div className="budgetTotal"><span>תקציב מתוכנן</span><strong>{planned.toLocaleString('he-IL')} ₪</strong><small>הוצאות שתועדו: {Math.round(spent).toLocaleString('he-IL')} ₪</small><b className={planned-spent<0?'overBudget':''}>{planned-spent>=0?'נותרו':'חריגה'} {Math.abs(Math.round(planned-spent)).toLocaleString('he-IL')} ₪</b></div></div>
+    <section className="expenseLedger"><header><div><span className="eyebrow">יומן הוצאות</span><h3>מה קנינו, איפה וכמה שילמנו</h3></div>{expenses.length>0&&<button className="softButton" onClick={exportCsv}>ייצוא CSV</button>}</header>
+      <form className="expenseForm" onSubmit={addExpense}><input required placeholder="מה קנינו?" value={form.item} onChange={e=>setForm({...form,item:e.target.value})}/><input placeholder="מאיפה קנינו?" value={form.store} onChange={e=>setForm({...form,store:e.target.value})}/><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{expenseCategories.map(c=><option key={c}>{c}</option>)}</select><input required type="number" inputMode="decimal" min="0" step="0.01" placeholder="מחיר" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/><select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}><option>EUR</option><option>ILS</option></select><select value={form.payment} onChange={e=>setForm({...form,payment:e.target.value})}><option>אשראי</option><option>מזומן</option><option>Apple/Google Pay</option></select><input className="expenseNote" placeholder="הערה (אופציונלי)" value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/><button className="button taskAdd" type="submit">＋ הוספת הוצאה</button></form>
+      <div className="expenseList">{expenses.length===0?<div className="emptyExpenses">ההוצאות שתוסיפו במהלך הטיול יופיעו כאן.</div>:expenses.map(e=><article key={e.id}><div><span className="expenseIcon">{e.category==='אוכל'?'🍝':e.category==='שופינג'?'🛍️':e.category==='תחבורה'?'🚕':'🧾'}</span><div><b>{e.item}</b><small>{e.store||'ללא מקום'} · {e.category} · {e.payment}</small>{e.note&&<p>{e.note}</p>}</div></div><strong>{e.currency==='EUR'?'€':'₪'}{Number(e.price).toLocaleString('he-IL')}</strong><button aria-label="מחיקת הוצאה" onClick={()=>remove(e.id)}>×</button></article>)}</div>
+    </section>
+  </div>
 }
 
 const checklistGroups=[
@@ -104,10 +150,10 @@ function NotesAndBackup(){
   const updateNotes=value=>{setNotes(value);localStorage.setItem('tripQuickNotes',value)};
   const updateContact=(id,value)=>{setContacts(old=>({...old,[id]:value}));localStorage.setItem(`tripContact:${id}`,value)};
   const exportData=()=>{
-    const data={version:1,exportedAt:new Date().toISOString(),checklistDone:JSON.parse(localStorage.getItem('tripChecklistDone')||'[]'),checklistCustom:JSON.parse(localStorage.getItem('tripChecklistCustom')||'[]'),notes:localStorage.getItem('tripQuickNotes')||'',contacts:Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])),budget:Object.fromEntries(budgetFields.map(k=>[k,localStorage.getItem(`budget:${k}`)||'0']))};
+    const data={version:1,exportedAt:new Date().toISOString(),checklistDone:JSON.parse(localStorage.getItem('tripChecklistDone')||'[]'),checklistCustom:JSON.parse(localStorage.getItem('tripChecklistCustom')||'[]'),notes:localStorage.getItem('tripQuickNotes')||'',contacts:Object.fromEntries(contactFields.map(([id])=>[id,localStorage.getItem(`tripContact:${id}`)||''])),budget:Object.fromEntries(budgetFields.map(k=>[k,localStorage.getItem(`budget:${k}`)||'0'])),expenses:JSON.parse(localStorage.getItem('tripExpenses')||'[]'),eurIlsRate:localStorage.getItem('eurIlsRate')||''};
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='italy-trip-backup.json';a.click();URL.revokeObjectURL(url)
   };
-  const importData=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());localStorage.setItem('tripChecklistDone',JSON.stringify(data.checklistDone||[]));localStorage.setItem('tripChecklistCustom',JSON.stringify(data.checklistCustom||[]));localStorage.setItem('tripQuickNotes',data.notes||'');Object.entries(data.contacts||{}).forEach(([id,value])=>localStorage.setItem(`tripContact:${id}`,value));Object.entries(data.budget||{}).forEach(([k,value])=>localStorage.setItem(`budget:${k}`,value));location.reload()}catch{alert('קובץ הגיבוי אינו תקין')}finally{e.target.value=''}};
+  const importData=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());localStorage.setItem('tripChecklistDone',JSON.stringify(data.checklistDone||[]));localStorage.setItem('tripChecklistCustom',JSON.stringify(data.checklistCustom||[]));localStorage.setItem('tripQuickNotes',data.notes||'');Object.entries(data.contacts||{}).forEach(([id,value])=>localStorage.setItem(`tripContact:${id}`,value));Object.entries(data.budget||{}).forEach(([k,value])=>localStorage.setItem(`budget:${k}`,value));localStorage.setItem('tripExpenses',JSON.stringify(data.expenses||[]));if(data.eurIlsRate)localStorage.setItem('eurIlsRate',data.eurIlsRate);location.reload()}catch{alert('קובץ הגיבוי אינו תקין')}finally{e.target.value=''}};
   return <div className="notesLayout">
     <div className="notesCard"><h3>פתקים משפחתיים</h3><p>רשמו כאן דברים שחשוב לזכור. הפתק נשמר אוטומטית במכשיר.</p><textarea rows="10" value={notes} onChange={e=>updateNotes(e.target.value)} placeholder="מספרי הזמנה, דברים לקנות, שינויי תוכנית..."/></div>
     <div className="contactsCard"><h3>פרטי קשר והזמנות</h3>{contactFields.map(([id,label])=><label key={id}><span>{label}</span><input value={contacts[id]} onChange={e=>updateContact(id,e.target.value)} placeholder="מספר, כתובת או הערה"/></label>)}</div>
@@ -124,7 +170,7 @@ function ConnectionStatus(){
 export default function TripTools(){
   const [tab,setTab]=useState('weather');
   return <section className="section container" id="tools">
-    <div className="sectionHead"><div><span className="eyebrow">כלים חכמים</span><h2>מרכז השליטה של הטיול</h2></div><p>מזג אוויר חי, תקציב, רשימת הכנות מלאה, פתקים וגיבוי מקומי.</p></div>
+    <div className="sectionHead"><div><span className="eyebrow">כלים חכמים</span><h2>מרכז השליטה של הטיול</h2></div><p>מזג אוויר חי, מחשבון אירו, תקציב מפורט, רשימת הכנות, פתקים וגיבוי מקומי.</p></div>
     <ConnectionStatus/>
     <div className="toolTabs"><button className={tab==='weather'?'active':''} onClick={()=>setTab('weather')}>מזג אוויר</button><button className={tab==='budget'?'active':''} onClick={()=>setTab('budget')}>תקציב</button><button className={tab==='check'?'active':''} onClick={()=>setTab('check')}>צ׳ק־ליסט</button><button className={tab==='notes'?'active':''} onClick={()=>setTab('notes')}>פתקים וגיבוי</button></div>
     <div className="toolPanel">{tab==='weather'?<Weather/>:tab==='budget'?<Budget/>:tab==='check'?<Checklist/>:<NotesAndBackup/>}</div>

@@ -22,14 +22,31 @@ export const destinations = [
 ];
 
 export const restaurants = [
-  {name:"Ba'Ghetto", city:'רומא', kosher:'כשר בשרי', type:'מטבח יהודי־רומאי', price:'€€–€€€', note:'ברובע היהודי. מתאים לארוחת ערב לאחר הקפיטול והרובע היהודי.', reserve:true, link:maps("Ba'Ghetto Rome")},
-  {name:"Ba'Ghetto Milky", city:'רומא', kosher:'כשר חלבי', type:'פיצה, פסטה ומנות חלביות', price:'€€', note:'בחירה נוחה למשפחה שרוצה ארוחה איטלקית כשרה.', reserve:true, link:maps("Ba'Ghetto Milky Rome")},
-  {name:"C’è Pasta e Pizza", city:'רומא', kosher:'כשר', type:'פסטה ופיצה', price:'€–€€', note:'פתרון פשוט ומהיר באזור הרובע היהודי.', reserve:false, link:maps("C'e Pasta e Pizza Rome kosher")},
-  {name:'Bellacarne', city:'רומא', kosher:'כשר בשרי', type:'בשר ומטבח רומאי', price:'€€–€€€', note:'אפשרות לארוחה בשרית מסודרת ברובע היהודי.', reserve:true, link:maps('Bellacarne Rome')},
-  {name:'Dolce Kosher', city:'רומא', kosher:'כשר', type:'מאפים וקינוחים', price:'€', note:'טוב לקפה, מאפה והצטיידות לדרך.', reserve:false, link:maps('Dolce Kosher Rome')},
-  {name:'Armando al Pantheon', city:'רומא', kosher:'לא כשר', type:'מטבח רומאי קלאסי', price:'€€€', note:'סמוך לפנתאון; הזמנה מוקדמת כמעט הכרחית.', reserve:true, link:maps('Armando al Pantheon Rome')},
-  {name:'Osteria da Fortunata', city:'רומא', kosher:'לא כשר', type:'פסטה טרייה', price:'€€', note:'פסטה בעבודת יד; עמוס מאוד בשעות השיא.', reserve:true, link:maps('Osteria da Fortunata Rome')},
-  {name:'Giolitti', city:'רומא', kosher:'לא כשר', type:'גלידה וקונדיטוריה', price:'€', note:'עצירת גלידה קלאסית ליד הפנתאון.', reserve:false, link:maps('Giolitti Rome')},
+  {name:'Roscioli Caffè', city:'רומא', category:'ארוחת בוקר ומאפים', kosher:'לא כשר', type:'קפה, קורנטו ומריטוצו', price:'€–€€', note:'ב־Piazza Cairoli. עצירה מצוינת לבוקר איטלקי קצר; קפה, קורנטו ומריטוצו. נוח במיוחד למרכז ההיסטורי.', reserve:false, link:maps('Roscioli Caffe Piazza Cairoli Rome')},
+  {name:'Pasticceria Regoli', city:'רומא', category:'ארוחת בוקר ומאפים', kosher:'לא כשר', type:'קונדיטוריה ומריטוצו', price:'€', note:'באזור אסקווילינו. המריטוצו הוא המנה המזוהה עם המקום. סגור בדרך כלל בשלישי — מתאים כאופציה ל־27.7 או לבוקר 30.7 בלבד, לאחר אימות שעות.', reserve:false, link:maps('Pasticceria Regoli Rome')},
+  {name:'Sciascia Caffè 1919', city:'רומא', category:'ארוחת בוקר ומאפים', kosher:'לא כשר', type:'קפה ושוקו חם', price:'€–€€', note:'באזור Prati ליד הוותיקן. הבחירה הטבעית לבוקר 29.7 לפני כיכר סן פטרוס.', reserve:false, link:maps('Sciascia Caffe 1919 Rome')},
+  {name:'Boccione', city:'רומא', category:'ארוחת בוקר ומאפים', kosher:'יש לבדוק כשרות', type:'מאפייה יהודית', price:'€', note:'מאפייה קטנה ללא שילוט בגטו. חפשו עוגת ריקוטה־דובדבנים ואת ה־Pizza Ebraica. סגור בשבת ובשישי נסגר מוקדם; לבדוק כשרות ושעות סמוך לביקור.', reserve:false, link:maps('Boccione Rome Jewish Ghetto')},
+  {name:'Antico Forno Roscioli', city:'רומא', category:'פיצה', kosher:'לא כשר', type:'פיצה אל טאליו לפי משקל', price:'€', note:'בחירה נוחה למשפחה: כל אחד בוחר חתיכות שונות ואוכלים בדרך. מתאים במיוחד לערב הראשון בין Campo de Fiori לפיאצה נבונה.', reserve:false, link:maps('Antico Forno Roscioli Rome')},
+  {name:'Bonci Pizzarium', city:'רומא', category:'פיצה', kosher:'לא כשר', type:'פיצה אל טאליו', price:'€–€€', note:'ליד הוותיקן, עם מבחר טעמים מתחלף. עמידה בלבד ולעיתים עמוס; מתאים לצהריים מהירים ב־29.7.', reserve:false, link:maps('Bonci Pizzarium Rome')},
+  {name:'Pizzeria Remo', city:'רומא', category:'פיצה', kosher:'לא כשר', type:'פיצה רומאית דקה', price:'€', note:'בטסטאצ׳יו, רועש ומקומי ומתאים לנוער. פתוח בערבים בלבד, ללא הזמנות וסגור בדרך כלל בראשון. חלופה טובה לערב 28.7 אם מוותרים על ארוחה בגטו.', reserve:false, link:maps('Pizzeria Remo Testaccio Rome')},
+  {name:'Emma Pizzeria', city:'רומא', category:'פיצה', kosher:'לא כשר', type:'פיצה וישיבה במרכז', price:'€€–€€€', note:'אפשרות נוחה לישיבה מסודרת במרכז. יקרה יותר; מומלץ להזמין מראש. מתאימה לערב הראשון.', reserve:true, link:maps('Emma Pizzeria Rome')},
+  {name:'Flavio al Velavevodetto', city:'רומא', category:'פסטה וארוחה מלאה', kosher:'לא כשר', type:'מטבח רומאי ופסטה', price:'€€', note:'בטסטאצ׳יו, מרווח ומתאים למשפחה של חמישה. קרבונרה ואמטריצ׳אנה הן המנות המזוהות עם המקום. מומלץ להזמין מראש.', reserve:true, link:maps('Flavio al Velavevodetto Rome')},
+  {name:'Trattoria Da Teo', city:'רומא', category:'פסטה וארוחה מלאה', kosher:'לא כשר', type:'טרטוריה רומאית', price:'€€', note:'בכיכר שקטה בטרסטוורה, עם מנות נדיבות. סגור בדרך כלל בראשון; מתאים כחלופה לערב 28.7.', reserve:true, link:maps('Trattoria Da Teo Rome')},
+  {name:'Da Cesare al Casaletto', city:'רומא', category:'פסטה וארוחה מלאה', kosher:'לא כשר', type:'מטבח רומאי מקומי', price:'€€', note:'מחוץ למרכז, בסוף קו טראם 8. איכותי ולא תיירותי, אבל דורש נסיעה ייעודית; מתאים רק לערב רגוע ללא מסלול נוסף.', reserve:true, link:maps('Da Cesare al Casaletto Rome')},
+  {name:'Gelateria del Teatro', city:'רומא', category:'ג׳לטו', kosher:'לא כשר', type:'ג׳לטו עונתי', price:'€', note:'ב־Via dei Coronari, קרוב לפיאצה נבונה. אפשר לראות חלק מתהליך ההכנה דרך החלון; מתאים במיוחד לערב הראשון.', reserve:false, link:maps('Gelateria del Teatro Via dei Coronari Rome')},
+  {name:'Otaleg', city:'רומא', category:'ג׳לטו', kosher:'לא כשר', type:'ג׳לטו יצירתי', price:'€', note:'בטרסטוורה, עם טעמים יצירתיים. מתאים לאחר ארוחה ב־Da Teo או בטיול ערב באזור.', reserve:false, link:maps('Otaleg Rome Trastevere')},
+  {name:'Fatamorgana', city:'רומא', category:'ג׳לטו', kosher:'לא כשר', type:'ג׳לטו', price:'€', note:'כמה סניפים בעיר, כולל באזור טרסטוורה. אפשרות גיבוי עקבית ונוחה כשנמצאים בסביבה.', reserve:false, link:maps('Fatamorgana Gelato Rome')},
+  {name:'Pompi', city:'רומא', category:'טירמיסו', kosher:'לא כשר', type:'טירמיסו בטייק־אווי', price:'€', note:'הקלאסיקה ליד המדרגות הספרדיות, עם כמה טעמים בקופסאות. מתאים לסיום יום השופינג ב־29.7.', reserve:false, link:maps('Pompi Spanish Steps Rome')},
+  {name:'Two Sizes', city:'רומא', category:'טירמיסו', kosher:'לא כשר', type:'טירמיסו בכוסיות', price:'€', note:'ליד פיאצה נבונה. המנות קטנות והתור לרוב מתקדם מהר; מתאים לערב הראשון.', reserve:false, link:maps('Two Sizes Rome')},
+  {name:'Mercato Centrale Roma', city:'רומא', category:'שוק אוכל', kosher:'לא כשר', type:'שוק אוכל מקורה', price:'€–€€', note:'בתחנת Termini. פתרון גיבוי מצוין למשפחה כשכל אחד רוצה משהו אחר, עם ישיבה משותפת ומזגן.', reserve:false, link:maps('Mercato Centrale Roma Termini')},
+  {name:"Ba'Ghetto", city:'רומא', category:'כשר', kosher:'כשר בשרי', type:'מטבח יהודי־רומאי', price:'€€–€€€', note:'ברובע היהודי. מתאים לארוחת ערב לאחר הקפיטול והרובע היהודי.', reserve:true, link:maps("Ba'Ghetto Rome")},
+  {name:"Ba'Ghetto Milky", city:'רומא', category:'כשר', kosher:'כשר חלבי', type:'פיצה, פסטה ומנות חלביות', price:'€€', note:'בחירה נוחה למשפחה שרוצה ארוחה איטלקית כשרה.', reserve:true, link:maps("Ba'Ghetto Milky Rome")},
+  {name:"C’è Pasta e Pizza", city:'רומא', category:'כשר', kosher:'כשר', type:'פסטה ופיצה', price:'€–€€', note:'פתרון פשוט ומהיר באזור הרובע היהודי.', reserve:false, link:maps("C'e Pasta e Pizza Rome kosher")},
+  {name:'Bellacarne', city:'רומא', category:'כשר', kosher:'כשר בשרי', type:'בשר ומטבח רומאי', price:'€€–€€€', note:'אפשרות לארוחה בשרית מסודרת ברובע היהודי.', reserve:true, link:maps('Bellacarne Rome')},
+  {name:'Dolce Kosher', city:'רומא', category:'כשר', kosher:'כשר', type:'מאפים וקינוחים', price:'€', note:'טוב לקפה, מאפה והצטיידות לדרך.', reserve:false, link:maps('Dolce Kosher Rome')},
+  {name:'Armando al Pantheon', city:'רומא', category:'פסטה וארוחה מלאה', kosher:'לא כשר', type:'מטבח רומאי קלאסי', price:'€€€', note:'סמוך לפנתאון; הזמנה מוקדמת כמעט הכרחית.', reserve:true, link:maps('Armando al Pantheon Rome')},
+  {name:'Osteria da Fortunata', city:'רומא', category:'פסטה וארוחה מלאה', kosher:'לא כשר', type:'פסטה טרייה', price:'€€', note:'פסטה בעבודת יד; עמוס מאוד בשעות השיא.', reserve:true, link:maps('Osteria da Fortunata Rome')},
+  {name:'Giolitti', city:'רומא', category:'ג׳לטו', kosher:'לא כשר', type:'גלידה וקונדיטוריה', price:'€', note:'עצירת גלידה קלאסית ליד הפנתאון.', reserve:false, link:maps('Giolitti Rome')},
   {name:'Da Gigino – Università della Pizza', city:'Vico Equense', kosher:'לא כשר', type:'פיצה ופסטה', price:'€€', note:'נוח לערב הראשון בדרום ומתאים למשפחות.', reserve:true, link:maps('Da Gigino Vico Equense')},
   {name:'Soul & Fish', city:'סורנטו', kosher:'לא כשר', type:'דגים ופסטה', price:'€€€', note:'ב־Marina Grande; מתאים לארוחה עם אווירה של נמל.', reserve:true, link:maps('Soul & Fish Sorrento')},
   {name:'Pizzeria da Franco', city:'סורנטו', kosher:'לא כשר', type:'פיצה', price:'€', note:'אפשרות מהירה ופשוטה באזור המרכז.', reserve:false, link:maps('Pizzeria da Franco Sorrento')},
@@ -90,8 +107,8 @@ export const days = [
       {name:'הפנתאון',why:'אחד המבנים הרומיים העתיקים והשמורים בעולם.',what:'העמודים הענקיים, הכיכר, הכיפה וה־Oculus הפתוח במרכזה אם בוחרים להיכנס.',time:'20–30 דקות מבחוץ; 40 דקות עם כניסה',access:'כ־15 דקות הליכה מטרווי דרך הסמטאות.',photo:'ממרכז Piazza della Rotonda מול החזית.',practical:'אם יש תור ארוך, הסתפקו בחוץ והמשיכו לפיאצה נבונה.',link:maps('Pantheon Rome')},
       {name:'פיאצה נבונה',why:'כיכר חיה ונעימה לערב, שנבנתה מעל אצטדיון רומי עתיק.',what:'מזרקת ארבעת הנהרות של ברניני, שתי מזרקות נוספות, אמני רחוב ובתי קפה.',time:'30–45 דקות',access:'5–7 דקות הליכה מהפנתאון.',photo:'ליד Fontana dei Quattro Fiumi לכיוון הכיכר הארוכה.',practical:'המסעדות ממש על הכיכר יקרות; עדיף לבחור רחוב צדדי סמוך.',link:maps('Piazza Navona Rome')}
     ],
-    food:['Armando al Pantheon','Osteria da Fortunata','Giolitti'], shopping:['Via del Corso'],
-    tips:['לא לדחוס קניות ארוכות בערב הראשון.','למזרקת טרווי כדאי לחזור גם מאוחר יותר בלילה אם נשאר כוח.','כל המסלול נוח לעגלה או הליכה, אך הרחובות מרוצפים ולא תמיד חלקים.']
+    food:['Antico Forno Roscioli','Emma Pizzeria','Two Sizes','Gelateria del Teatro','Armando al Pantheon','Osteria da Fortunata'], shopping:['Via del Corso'],
+    tips:['לערב הראשון בחרו ארוחה אחת וקינוח אחד; אין צורך לטעום הכול באותו ערב.','לא לדחוס קניות ארוכות בערב הראשון.','למזרקת טרווי כדאי לחזור גם מאוחר יותר בלילה אם נשאר כוח.','כל המסלול נוח לעגלה או הליכה, אך הרחובות מרוצפים ולא תמיד חלקים.']
   },
   {
     date:'28.7', weekday:'יום שלישי', title:'רומא העתיקה והרובע היהודי', image:imageBank.rome, intensity:'בינוני',
@@ -104,7 +121,7 @@ export const days = [
       fallback:'אם החום כבד, ותרו על חלק מהפלטין וצאו מוקדם למנוחה; את הקפיטול והגטו עשו בערב.'
     },
     parking:{needed:false,name:'אין רכב ביום הזה',address:'',note:'אין להיכנס למרכז רומא עם רכב שכור בגלל ZTL וחניה קשה.',link:null},
-    schedule:[['07:45','יציאה ברגל מהדירה'],['08:30','קולוסיאום'],['09:50','שער קונסטנטינוס וכניסה לפורום'],['10:10','הפורום הרומי והפלטין במסלול ממוקד'],['12:30','ארוחת צהריים ומנוחה במונטי'],['16:30','Piazza Venezia, הקפיטול וה־Vittoriano'],['18:30','הרובע היהודי, תיאטרון מרצ׳לו והאי טיברינה'],['20:00','ארוחה כשרה ברובע היהודי']],
+    schedule:[['07:45','יציאה ברגל מהדירה'],['08:30','קולוסיאום'],['09:50','שער קונסטנטינוס וכניסה לפורום'],['10:10','הפורום הרומי והפלטין במסלול ממוקד'],['12:30','ארוחת צהריים — Flavio al Velavevodetto בהזמנה, או Mercato Centrale כגיבוי'],['16:30','Piazza Venezia, הקפיטול וה־Vittoriano'],['18:30','הרובע היהודי, Boccione, תיאטרון מרצ׳לו והאי טיברינה'],['20:00','ארוחה כשרה ברובע היהודי; Remo/Da Teo רק כחלופה לערב']],
     stops:[
       {name:'הקולוסיאום',why:'הסמל הגדול של רומא העתיקה ומקום שממחיש לילדים את עוצמת האימפריה.',what:'יציעי הקהל, זירת הקרבות, המבנה שמתחת לרצפה והדרך שבה העלו חיות ותפאורה.',time:'60–75 דקות',access:'מגיעים ברגל מהדירה; הכניסה לפי השעה שעל הכרטיס.',photo:'מהצד של Colle Oppio או ליד שער קונסטנטינוס.',practical:'אל תנסו לקרוא כל שלט. התמקדו בסיפור הזירה ובמבנה ההנדסי.',link:maps('Colosseum Rome')},
       {name:'שער קונסטנטינוס',why:'שער ניצחון גדול ומרשים ממש ליד הקולוסיאום.',what:'תבליטים מתקופות שונות וסיפור הניצחון של הקיסר קונסטנטינוס.',time:'5–10 דקות',access:'דקה הליכה מיציאת הקולוסיאום.',photo:'מצד הקולוסיאום כך ששני האתרים נכנסים לתמונה.',practical:'עצירה קצרה בלבד לפני הפורום.',link:maps('Arch of Constantine Rome')},
@@ -114,8 +131,8 @@ export const days = [
       {name:'Vittoriano',why:'המבנה הלבן הענק מציע תצפיות טובות על מרכז רומא.',what:'המרפסות, פסל ויטוריו עמנואלה השני ותצפית לעבר הפורום והקולוסיאום.',time:'30–60 דקות',access:'נמצא ב־Piazza Venezia מתחת לקפיטול.',photo:'מהמדרגות או מהמרפסות העליונות.',practical:'אפשר להסתפק במרפסות החינמיות אם לא רוצים לעלות במעלית בתשלום.',link:maps('Vittoriano Rome')},
       {name:'הרובע היהודי',why:'שילוב של היסטוריה יהודית, ארכיאולוגיה ואוכל כשר.',what:'בית הכנסת הגדול מבחוץ, Portico d’Ottavia, מזרקת הצבים, תיאטרון מרצ׳לו והאי טיברינה.',time:'1.5–2 שעות כולל ארוחה',access:'כ־15 דקות הליכה מהקפיטול בירידה.',photo:'תיאטרון מרצ׳לו לקראת שקיעה או Portico d’Ottavia.',practical:'זה היום הטוב ביותר לשלב ארוחת ערב כשרה והצטיידות במאפים/מוצרים לדרך.',link:maps('Jewish Ghetto Rome')}
     ],
-    food:["Ba'Ghetto","Ba'Ghetto Milky","C’è Pasta e Pizza",'Bellacarne','Dolce Kosher'], shopping:[],
-    tips:['הזמינו את הקולוסיאום לשעה הראשונה של היום.','באתרים העתיקים כמעט אין צל — קחו מים וכובעים.','אל תעשו גם ארנה וגם תת־קרקע אם המטרה היא קצב משפחתי.']
+    food:['Flavio al Velavevodetto','Boccione',"Ba'Ghetto","Ba'Ghetto Milky","C’è Pasta e Pizza",'Bellacarne','Dolce Kosher','Pizzeria Remo','Trattoria Da Teo','Mercato Centrale Roma'], shopping:[],
+    tips:['Flavio דורש הזמנה ומוסיף נסיעה קצרה לטסטאצ׳יו; Mercato Centrale הוא גיבוי פשוט יותר.','הזמינו את הקולוסיאום לשעה הראשונה של היום.','באתרים העתיקים כמעט אין צל — קחו מים וכובעים.','אל תעשו גם ארנה וגם תת־קרקע אם המטרה היא קצב משפחתי.']
   },
   {
     date:'29.7', weekday:'יום רביעי', title:'הוותיקן מבחוץ, סנטאנג׳לו ושופינג', image:imageBank.romeStreet, intensity:'בינוני',
@@ -128,7 +145,7 @@ export const days = [
       fallback:'אם חם מאוד, קחו מונית מסנטאנג׳לו ישירות ל־Rinascente והתחילו את השופינג במקום ממוזג.'
     },
     parking:{needed:false,name:'אין רכב ביום הזה',address:'',note:'תחבורה ציבורית ומוניות עדיפות לחלוטין. החניה באזור הוותיקן והמרכז קשה ויקרה.',link:null},
-    schedule:[['08:00','יציאה לכיכר סן פטרוס'],['08:30','כיכר סן פטרוס והבזיליקה מבחוץ'],['09:30','הליכה ל־Castel Sant’Angelo וגשר המלאכים'],['10:30','קפה או ארוחה קלה באזור Prati / Via Cola di Rienzo'],['11:30','Via Cola di Rienzo — שופינג מקומי'],['13:00','מעבר ל־Piazza del Popolo'],['13:30','Via del Corso, Galleria Alberto Sordi ו־Rinascente'],['17:00','Via Condotti והמדרגות הספרדיות'],['19:30','ערב חופשי או ארוחה כשרה ברובע היהודי']],
+    schedule:[['07:45','Sciascia Caffè 1919 — קפה, קורנטו או שוקו חם'],['08:30','כיכר סן פטרוס והבזיליקה מבחוץ'],['09:30','הליכה ל־Castel Sant’Angelo וגשר המלאכים'],['10:30','Bonci Pizzarium או קפה קל באזור Prati'],['11:30','Via Cola di Rienzo — שופינג מקומי'],['13:00','מעבר ל־Piazza del Popolo'],['13:30','Via del Corso, Galleria Alberto Sordi ו־Rinascente'],['17:00','Via Condotti והמדרגות הספרדיות'],['18:15','Pompi — טירמיסו בטייק־אווי'],['19:30','ערב חופשי או ארוחה כשרה ברובע היהודי']],
     stops:[
       {name:'כיכר סן פטרוס',why:'אחת הכיכרות המפורסמות בעולם והדרך הטובה לראות את הוותיקן בלי להקדיש שעות למוזיאונים.',what:'שדרות העמודים של ברניני, האובליסק, חזית הבזיליקה וחלונות ארמון האפיפיור.',time:'45–60 דקות',access:'מונית ל־Piazza Pio XII או מטרו Ottaviano והליכה.',photo:'ממרכז הכיכר מול הבזיליקה או בנקודות שבהן שורות העמודים מסתדרות לטור אחד.',practical:'אינכם נכנסים למוזיאונים. אם התור לבזיליקה ארוך, הסתפקו בכיכר ובחזית.',link:maps('Saint Peters Square Vatican')},
       {name:'Castel Sant’Angelo וגשר המלאכים',why:'מבצר עגול מרשים וקטע הליכה יפה לאורך הטיבר.',what:'המאוזוליאום של הקיסר אדריאנוס שהפך למבצר, ופסלי המלאכים שעל הגשר.',time:'45–60 דקות מבחוץ',access:'15 דקות הליכה מסן פטרוס לאורך Via della Conciliazione.',photo:'מאמצע Ponte Sant’Angelo לכיוון המבצר.',practical:'אין צורך להיכנס פנימה אלא אם הילדים מתעניינים במבצרים.',link:maps('Castel Sant Angelo Rome')},
@@ -137,8 +154,8 @@ export const days = [
       {name:'Rinascente Roma Tritone',why:'חנות כלבו גדולה, ממוזגת ונוחה מאוד בשעות החמות.',what:'מותגי אופנה, קוסמטיקה, עיצוב, קומת אוכל וגג עם נוף.',time:'1–2 שעות',access:'סטייה קצרה מ־Via del Corso לכיוון Via del Tritone.',photo:'הגג או האקוודוקט העתיק שבתוך המבנה.',practical:'מתאים להפסקת מזגן, שירותים ואוכל במקום אחד.',link:maps('Rinascente Roma Tritone')},
       {name:'Via Condotti והמדרגות הספרדיות',why:'סיום יפה ליום עם רחוב יוקרה ואחת הכיכרות הידועות בעיר.',what:'חלונות ראווה של מותגי יוקרה, Piazza di Spagna והמדרגות.',time:'45–75 דקות',access:'כ־10 דקות הליכה מ־Rinascente.',photo:'מתחתית המדרגות לכיוון הכנסייה או מראש המדרגות לכיוון העיר.',practical:'אסור לשבת על המדרגות; לעצירה השתמשו בספסלים בכיכר.',link:maps('Spanish Steps Rome')}
     ],
-    food:["Ba'Ghetto Milky",'Dolce Kosher','Giolitti'], shopping:['Via del Corso','Rinascente Roma Tritone','Via Condotti'],
-    tips:['אין צורך להקדיש יותר משעה לוותיקן כשלא נכנסים.','שמרו קבלות ובקשו Tax Free בחנויות המשתתפות בהתאם לסכום הקנייה.','Via Cola di Rienzo מתאימה יותר לרשתות שימושיות; Via Condotti בעיקר לצפייה במותגי יוקרה.']
+    food:['Sciascia Caffè 1919','Bonci Pizzarium','Pompi',"Ba'Ghetto Milky",'Dolce Kosher','Giolitti'], shopping:['Via del Corso','Rinascente Roma Tritone','Via Condotti'],
+    tips:['Sciascia ו־Bonci משתלבים טבעית ביום הוותיקן; Pompi סוגר את יום השופינג ליד המדרגות הספרדיות.','אין צורך להקדיש יותר משעה לוותיקן כשלא נכנסים.','שמרו קבלות ובקשו Tax Free בחנויות המשתתפות בהתאם לסכום הקנייה.','Via Cola di Rienzo מתאימה יותר לרשתות שימושיות; Via Condotti בעיקר לצפייה במותגי יוקרה.']
   },
   {
     date:'30.7', weekday:'יום חמישי', title:'איסוף רכב ונסיעה דרומה', image:imageBank.sorrento, intensity:'יום מעבר',
