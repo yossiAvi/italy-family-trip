@@ -1,12 +1,12 @@
 export const imageBank = {
-  rome: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1800&q=86',
-  romeStreet: 'https://images.unsplash.com/photo-1525874684015-58379d421a52?auto=format&fit=crop&w=1600&q=84',
-  positano: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1800&q=86',
-  amalfi: 'https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&w=1800&q=86',
-  capri: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1800&q=86',
-  sorrento: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1600&q=84',
-  pompeii: 'https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=1600&q=84',
-  naples: 'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?auto=format&fit=crop&w=1600&q=84'
+  rome: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Rome_Colosseum_2017.jpg?width=1800',
+  romeStreet: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Colosseum_in_Rome%2C_Italy.jpg?width=1800',
+  positano: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/View_of_Positano.jpg?width=1800',
+  amalfi: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Amalfi_Cathedral_-_Piazza_del_Duomo%2C_Amalfi_%287679657946%29.jpg?width=1800',
+  capri: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Faraglioni-Capri.jpg?width=1800',
+  sorrento: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Marina_Grande%2C_Sorrento.jpg?width=1800',
+  pompeii: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Ruins_of_Pompeii_with_the_Vesuvius.jpg?width=1800',
+  naples: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Naples_spaccanapoli.JPG?width=1600'
 };
 
 const maps = (query) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
